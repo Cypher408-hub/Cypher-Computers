@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cypher IT Solutions — Phones, Laptops & Accessories</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="products.js"></script>
+<script src="cart.js"></script>
+<script src="account-nav.js"></script>
+<style>
+  :root{
+    --paper:#EDEAE2; --paper-2:#E2DDD0; --ink:#1A1B17; --ink-soft:#54564E;
+    --orange:#FF5A1F; --orange-deep:#D6480F; --steel:#2F5A7A;
+    --line:#1A1B17; --line-soft:rgba(26,27,23,0.18);
+    --display:'Archivo Black',sans-serif; --sans:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.55;overflow-x:hidden;}
+  a{color:inherit;text-decoration:none;}
+
+  /* NAV */
+  nav{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:18px 5vw;border-bottom:2px solid var(--ink);
+    position:sticky;top:0;z-index:100;background:var(--paper);
+  }
+  .logo{font-family:var(--display);font-size:1.1rem;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px;}
+  .nav-links{display:flex;gap:28px;font-family:var(--mono);font-size:0.76rem;text-transform:uppercase;letter-spacing:0.04em;}
+  .nav-links a{position:relative;padding-bottom:3px;}
+  .nav-links a::after{content:'';position:absolute;left:0;bottom:0;width:0;height:2px;background:var(--orange);transition:width 0.25s;}
+  .nav-links a:hover::after{width:100%;}
+  .nav-right{display:flex;align-items:center;gap:16px;}
+  .nav-link-auth{font-family:var(--mono);font-size:0.76rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-soft);}
+  .nav-link-auth:hover{color:var(--orange-deep);}
+  .nav-cta{
+    font-family:var(--mono);font-size:0.76rem;text-transform:uppercase;letter-spacing:0.04em;
+    border:2px solid var(--ink);padding:8px 16px;transition:all 0.2s;
+  }
+  .nav-cta:hover{background:var(--ink);color:var(--paper);}
+  .cart-link{position:relative;font-family:var(--mono);font-size:0.76rem;text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+  .cart-badge{
+    display:none;position:absolute;top:-8px;right:-12px;
+    background:var(--orange);color:var(--paper);font-size:0.65rem;font-weight:600;
+    min-width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;
+  }
+  .openBtn{background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--ink);padding:4px;}
+
+  /* HERO */
+  .hero{
+    display:grid;grid-template-columns:1.1fr 0.9fr;
+    border-bottom:2px solid var(--ink);min-height:70vh;
+  }
+  .hero-left{
+    padding:6vw 4vw 5vw 5vw;display:flex;flex-direction:column;justify-content:center;
+    border-right:2px solid var(--ink);position:relative;
+  }
+  .hero-tag{font-family:var(--mono);font-size:0.76rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--steel);margin-bottom:20px;}
+  .hero-tag::before{content:'// ';color:var(--orange);}
+  h1.hero-title{font-family:var(--display);font-size:clamp(2.4rem,5vw,4.2rem);line-height:0.98;letter-spacing:-0.01em;text-transform:uppercase;}
+  h1.hero-title .hl{color:var(--orange);}
+  .hero-sub{margin-top:22px;font-size:1.02rem;color:var(--ink-soft);max-width:440px;}
+  .hero-actions{margin-top:32px;display:flex;gap:14px;flex-wrap:wrap;}
+  .btn-solid{
+    font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.04em;
+    background:var(--orange);color:var(--paper);padding:14px 26px;border:2px solid var(--orange);transition:all 0.2s;cursor:pointer;
+  }
+  .btn-solid:hover{background:transparent;color:var(--orange-deep);}
+  .btn-line{
+    font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.04em;
+    border:2px solid var(--ink);padding:12px 24px;transition:all 0.2s;display:inline-block;
+  }
+  .btn-line:hover{background:var(--ink);color:var(--paper);}
+  .stamp{
+    position:absolute;top:40px;right:30px;width:96px;height:96px;
+    border:2.5px solid var(--orange);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;transform:rotate(-12deg);
+    font-family:var(--mono);font-size:0.58rem;text-transform:uppercase;letter-spacing:0.03em;
+    text-align:center;color:var(--orange-deep);line-height:1.3;
+  }
+  .stamp::before{content:'';position:absolute;inset:7px;border:1px solid var(--orange);border-radius:50%;}
+  .hero-right{position:relative;overflow:hidden;background:var(--paper-2);}
+  .hero-right img{width:100%;height:100%;object-fit:cover;display:block;min-height:320px;}
+
+  /* SECTIONS */
+  section{padding:56px 5vw;border-bottom:2px solid var(--ink);}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px;gap:20px;flex-wrap:wrap;}
+  .section-title{font-family:var(--display);font-size:clamp(1.5rem,3vw,2.1rem);text-transform:uppercase;}
+  .section-title .hl{color:var(--orange);}
+  .section-note{font-family:var(--mono);font-size:0.78rem;color:var(--ink-soft);max-width:280px;}
+
+  /* FLASH SALES */
+  .flash-header{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:28px;}
+  .countdown{
+    display:flex;gap:8px;font-family:var(--mono);font-size:0.9rem;
+  }
+  .countdown span{
+    background:var(--ink);color:var(--paper);padding:8px 12px;min-width:48px;text-align:center;
+  }
+  .flash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:2px solid var(--ink);border-left:2px solid var(--ink);}
+
+  /* PRODUCT CARDS */
+  .product-card{
+    border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);
+    background:var(--paper);display:flex;flex-direction:column;transition:background 0.15s;
+  }
+  .product-card:hover{background:var(--paper-2);}
+  .product-img{
+    aspect-ratio:1;background-size:cover;background-position:center;
+    position:relative;border-bottom:2px solid var(--ink);
+  }
+  .product-badge{
+    position:absolute;top:10px;left:10px;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:0.62rem;padding:4px 9px;text-transform:uppercase;
+  }
+  .product-badge.flash{background:var(--orange);}
+  .discount-flag{
+    position:absolute;top:10px;right:10px;background:var(--orange);color:var(--paper);
+    font-family:var(--mono);font-weight:600;font-size:0.68rem;padding:4px 8px;
+  }
+  .product-body{padding:16px 18px;display:flex;flex-direction:column;flex:1;}
+  .product-brand{font-family:var(--mono);font-size:0.65rem;color:var(--steel);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;}
+  .product-name{font-family:var(--display);font-size:0.95rem;text-transform:uppercase;line-height:1.2;}
+  .product-spec{font-family:var(--mono);font-size:0.72rem;color:var(--ink-soft);margin-top:6px;line-height:1.5;flex:1;}
+  .product-rating{font-family:var(--mono);font-size:0.72rem;color:var(--ink-soft);margin-top:8px;}
+  .product-rating .stars{color:var(--orange);}
+  .product-foot{margin-top:14px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;}
+  .price-block{display:flex;flex-direction:column;}
+  .price-old{font-family:var(--mono);font-size:0.72rem;color:var(--ink-soft);text-decoration:line-through;}
+  .price-new{font-family:var(--mono);font-size:1.05rem;font-weight:600;color:var(--orange-deep);}
+  .add-btn{
+    font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.03em;
+    background:var(--ink);color:var(--paper);border:none;padding:9px 12px;cursor:pointer;white-space:nowrap;
+    transition:background 0.15s;
+  }
+  .add-btn:hover{background:var(--orange);}
+
+  /* CATEGORY ROWS */
+  .catalog-row{
+    display:grid;grid-template-columns:50px 1fr auto auto;align-items:center;gap:20px;
+    padding:22px 0;border-bottom:1.5px solid var(--line-soft);transition:background 0.15s;
+  }
+  .catalog-row:hover{background:var(--paper-2);}
+  .cat-idx{font-family:var(--mono);font-size:0.8rem;color:var(--steel);}
+  .cat-name{font-family:var(--display);font-size:1.15rem;text-transform:uppercase;}
+  .cat-desc{font-family:var(--mono);font-size:0.76rem;color:var(--ink-soft);margin-top:2px;}
+  .cat-stock{font-family:var(--mono);font-size:0.74rem;color:var(--steel);}
+  .cat-arrow{font-family:var(--mono);font-size:0.78rem;color:var(--orange-deep);}
+
+  /* REPAIRS */
+  .repair-wrap{display:grid;grid-template-columns:1fr 1fr;border:2px solid var(--ink);}
+  .repair-info{padding:36px;border-right:2px solid var(--ink);}
+  .repair-step{display:flex;gap:16px;margin-bottom:22px;}
+  .step-num{font-family:var(--display);font-size:1.3rem;color:var(--orange);min-width:36px;}
+  .step-name{font-family:var(--display);font-size:0.95rem;text-transform:uppercase;}
+  .step-desc{font-size:0.88rem;color:var(--ink-soft);margin-top:3px;}
+  .ticket-form{padding:36px;background:var(--paper-2);}
+  .ticket-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .ticket-head h3{font-family:var(--display);font-size:1.15rem;text-transform:uppercase;}
+  .ticket-no{font-family:var(--mono);font-size:0.7rem;color:var(--steel);}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-family:var(--mono);font-size:0.7rem;text-transform:uppercase;color:var(--ink-soft);margin-bottom:5px;}
+  .field input,.field select,.field textarea{
+    width:100%;background:transparent;border:none;border-bottom:1.5px solid var(--ink);
+    padding:8px 2px;color:var(--ink);font-family:var(--sans);font-size:0.94rem;outline:none;
+  }
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .submit-btn{
+    margin-top:8px;font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;
+    background:var(--orange);color:var(--paper);padding:13px 26px;border:2px solid var(--orange);cursor:pointer;
+  }
+  .submit-btn:hover{background:transparent;color:var(--orange-deep);}
+  .form-note{font-family:var(--mono);font-size:0.68rem;color:var(--ink-soft);margin-top:10px;}
+
+  /* TRUST */
+  .trust-strip{display:grid;grid-template-columns:repeat(4,1fr);border:2px solid var(--ink);}
+  .trust-cell{padding:32px 24px;border-right:2px solid var(--ink);}
+  .trust-cell:last-child{border-right:none;}
+  .trust-cell .num{font-family:var(--display);font-size:2.1rem;color:var(--orange);}
+  .trust-cell .label{font-family:var(--mono);font-size:0.7rem;text-transform:uppercase;color:var(--ink-soft);margin-top:6px;}
+
+  .testimonial-strip{display:flex;align-items:flex-start;gap:32px;}
+  .quote-mark{font-family:var(--display);font-size:4.5rem;color:var(--orange);line-height:0.6;}
+  .testimonial-strip blockquote{font-size:1.25rem;font-weight:500;max-width:640px;}
+  .testimonial-strip cite{display:block;margin-top:14px;font-family:var(--mono);font-size:0.76rem;color:var(--steel);font-style:normal;}
+
+  /* FOOTER / CONTACT */
+  .contact-grid{display:grid;grid-template-columns:repeat(3,1fr);border:2px solid var(--ink);}
+  .contact-block{padding:32px;border-right:2px solid var(--ink);}
+  .contact-block:last-child{border-right:none;}
+  .contact-block .index{font-family:var(--mono);font-size:0.7rem;color:var(--steel);margin-bottom:12px;text-transform:uppercase;}
+  .contact-block h4{font-family:var(--display);font-size:1.05rem;text-transform:uppercase;margin-bottom:12px;}
+  .contact-block p,.contact-block a{display:block;color:var(--ink-soft);font-size:0.88rem;margin-bottom:6px;}
+  .contact-block a:hover{color:var(--orange-deep);}
+
+  footer{
+    padding:24px 5vw;display:flex;justify-content:space-between;align-items:center;
+    font-family:var(--mono);font-size:0.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.03em;
+  }
+
+  /* SEARCH OVERLAY */
+  .overlay{height:100%;width:100%;display:none;position:fixed;z-index:200;top:0;left:0;background:rgba(0,0,0,0.92);}
+  .overlay-content{position:relative;top:40%;width:80%;max-width:700px;margin:auto;text-align:center;}
+  .overlay .closebtn{position:absolute;top:24px;right:40px;font-size:48px;cursor:pointer;color:#fff;}
+  .site-search-form{display:flex;width:100%;}
+  .site-search-form input[type=text]{flex:1;padding:16px;font-size:1.1rem;border:none;outline:none;}
+  .site-search-form button{width:70px;padding:16px;background:var(--orange);border:none;color:#fff;cursor:pointer;font-size:1.1rem;}
+
+  @media (max-width:960px){
+    .flash-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:880px){
+    .nav-links{display:none;}
+    .hero{grid-template-columns:1fr;}
+    .hero-left{border-right:none;border-bottom:2px solid var(--ink);}
+    .stamp{width:80px;height:80px;font-size:0.52rem;top:20px;right:20px;}
+    .flash-grid{grid-template-columns:1fr 1fr;}
+    .catalog-row{grid-template-columns:40px 1fr;}
+    .cat-stock,.cat-arrow{display:none;}
+    .repair-wrap{grid-template-columns:1fr;}
+    .repair-info{border-right:none;border-bottom:2px solid var(--ink);}
+    .trust-strip{grid-template-columns:1fr 1fr;}
+    .trust-cell:nth-child(2){border-right:none;}
+    .contact-grid{grid-template-columns:1fr;}
+    .contact-block{border-right:none;border-bottom:2px solid var(--ink);}
+    .field-row{grid-template-columns:1fr;}
+    footer{flex-direction:column;gap:8px;text-align:center;}
+  }
+  @media (max-width:520px){
+    .flash-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">
+    <svg width="28" height="28" viewBox="0 0 30 30" fill="none"><rect x="1" y="1" width="28" height="28" stroke="#1A1B17" stroke-width="2"/><path d="M20 8H12C9.79086 8 8 9.79086 8 12V18C8 20.2091 9.79086 22 12 22H20" stroke="#1A1B17" stroke-width="2.4" stroke-linecap="square"/><circle cx="21.5" cy="8.5" r="2" fill="#FF5A1F"/><circle cx="21.5" cy="21.5" r="2" fill="#FF5A1F"/></svg>
+    CYPHER IT SOLUTIONS
+  </a>
+  <div class="nav-links">
+    <a href="laptop.html">Laptops</a>
+    <a href="phones.html">Phones</a>
+    <a href="accessories.html">Accessories</a>
+    <a href="#repairs">Repairs</a>
+  </div>
+  <div class="nav-right">
+    <button class="openBtn" onclick="openSearch()" aria-label="Search"><i class="fa fa-search"></i></button>
+    <a href="cart.html" class="cart-link"><i class="fa fa-shopping-cart"></i> Cart <span class="cart-badge"></span></a>
+    <a href="login.html" class="nav-link-auth">Login</a>
+    <a href="signup.html" class="nav-cta">Sign Up</a>
+  </div>
+</nav>
+
+<div id="myOverlay" class="overlay">
+  <span class="closebtn" onclick="closeSearch()" title="Close">×</span>
+  <div class="overlay-content">
+    <form action="search.html" method="GET" class="site-search-form">
+      <input type="text" placeholder="Search phones, laptops, accessories..." name="q" required>
+      <button type="submit"><i class="fa fa-search"></i></button>
+    </form>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero" style="padding:0;border-bottom:2px solid var(--ink);">
+  <div class="hero-left">
+    <div class="hero-tag">Ashanti Region, Ghana</div>
+    <h1 class="hero-title">Fix it right.<br>Buy it <span class="hl">smart.</span></h1>
+    <p class="hero-sub">Phones, laptops & accessories — quality-checked, fair prices, free diagnostics on repairs.</p>
+    <div class="hero-actions">
+      <a href="#flash" class="btn-solid">Flash Sales</a>
+      <a href="#shop" class="btn-line">Browse All</a>
+    </div>
+    <div class="stamp">Quality<br>Checked<br>★ ★ ★</div>
+  </div>
+  <div class="hero-right">
+    <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1000&q=80" alt="Laptops & devices">
+  </div>
+</section>
+
+<!-- FLASH SALES -->
+<section id="flash">
+  <div class="flash-header">
+    <h2 class="section-title">Flash <span class="hl">Sales</span></h2>
+    <div class="countdown" id="countdown">
+      <span id="cd-h">00</span> :
+      <span id="cd-m">00</span> :
+      <span id="cd-s">00</span>
+    </div>
+    <div class="section-note" style="margin-left:auto;">Limited stock · Ends soon</div>
+  </div>
+  <div class="flash-grid" id="flash-grid"></div>
+</section>
+
+<!-- CATEGORIES -->
+<section id="shop">
+  <div class="section-head">
+    <h2 class="section-title">Shop by <span class="hl">category</span></h2>
+    <div class="section-note">Phones · Laptops · Accessories · Repairs</div>
+  </div>
+  <a href="laptop.html" class="catalog-row">
+    <div class="cat-idx">01</div>
+    <div><div class="cat-name">Laptops</div><div class="cat-desc">UK-used & business grade, fully checked</div></div>
+    <div class="cat-stock">● In Stock</div>
+    <div class="cat-arrow">View →</div>
+  </a>
+  <a href="phones.html" class="catalog-row">
+    <div class="cat-idx">02</div>
+    <div><div class="cat-name">Phones</div><div class="cat-desc">Android & iPhone, new & UK-used</div></div>
+    <div class="cat-stock">● In Stock</div>
+    <div class="cat-arrow">View →</div>
+  </a>
+  <a href="accessories.html" class="catalog-row">
+    <div class="cat-idx">03</div>
+    <div><div class="cat-name">Accessories</div><div class="cat-desc">Chargers, cases, earbuds, bags</div></div>
+    <div class="cat-stock">● In Stock</div>
+    <div class="cat-arrow">View →</div>
+  </a>
+  <a href="#repairs" class="catalog-row">
+    <div class="cat-idx">04</div>
+    <div><div class="cat-name">Repairs</div><div class="cat-desc">Screens, batteries, software — free diagnostics</div></div>
+    <div class="cat-stock">● Open Now</div>
+    <div class="cat-arrow">Book →</div>
+  </a>
+</section>
+
+<!-- FEATURED / TOP SELLING -->
+<section>
+  <div class="section-head">
+    <h2 class="section-title">Top <span class="hl">selling</span></h2>
+    <div class="section-note">Popular right now</div>
+  </div>
+  <div class="flash-grid" id="featured-grid"></div>
+</section>
+
+<!-- REPAIRS -->
+<section id="repairs">
+  <div class="section-head">
+    <h2 class="section-title">How repairs <span class="hl">work</span></h2>
+    <div class="section-note">Drop off or WhatsApp — clear price before we start</div>
+  </div>
+  <div class="repair-wrap">
+    <div class="repair-info">
+      <div class="repair-step">
+        <div class="step-num">01</div>
+        <div><div class="step-name">Tell us the problem</div><div class="step-desc">Form, call or WhatsApp with what’s wrong.</div></div>
+      </div>
+      <div class="repair-step">
+        <div class="step-num">02</div>
+        <div><div class="step-name">Free diagnostic</div><div class="step-desc">We confirm the issue and cost before any work.</div></div>
+      </div>
+      <div class="repair-step">
+        <div class="step-num">03</div>
+        <div><div class="step-name">Repair, 24–48hrs</div><div class="step-desc">Most screen, battery and software fixes done fast.</div></div>
+      </div>
+      <div class="repair-step">
+        <div class="step-num">04</div>
+        <div><div class="step-name">90-day warranty</div><div class="step-desc">If it’s our work, we fix it again for free.</div></div>
+      </div>
+    </div>
+    <div class="ticket-form">
+      <div class="ticket-head">
+        <h3>Book a repair</h3>
+        <div class="ticket-no">TICKET #</div>
+      </div>
+      <p style="margin-bottom:18px;color:var(--ink-soft);font-size:0.92rem;">We’ll reply with a price and options, usually within the hour.</p>
+      <form class="svc-form" action="https://formsubmit.co/your-email@example.com" method="POST">
+        <input type="hidden" name="_subject" value="New repair booking — Cypher IT">
+        <input type="hidden" name="_captcha" value="false">
+        <div class="field-row">
+          <div class="field"><label for="rname">Name</label><input type="text" id="rname" name="Name" required></div>
+          <div class="field"><label for="rphone">Phone / WhatsApp</label><input type="text" id="rphone" name="Phone" required></div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="device">Device</label>
+            <select id="device" name="Device"><option>Laptop</option><option>Phone</option><option>Tablet</option><option>Other</option></select>
+          </div>
+          <div class="field">
+            <label for="issue-type">Issue type</label>
+            <select id="issue-type" name="Issue Type"><option>Screen</option><option>Battery</option><option>Software</option><option>Charging port</option><option>Not sure</option></select>
+          </div>
+        </div>
+        <div class="field"><label for="issue">Describe the problem</label><textarea id="issue" name="Description" rows="3" required></textarea></div>
+        <button type="submit" class="submit-btn">Request Quote</button>
+        <div class="form-note">Update the form email before going live.</div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section id="why">
+  <div class="section-head">
+    <h2 class="section-title">Built on <span class="hl">straight answers</span></h2>
+    <div class="section-note">Clear price · Honest timeline</div>
+  </div>
+  <div class="trust-strip">
+    <div class="trust-cell"><div class="num">500+</div><div class="label">Devices Sold &amp; Repaired</div></div>
+    <div class="trust-cell"><div class="num">90</div><div class="label">Day Warranty</div></div>
+    <div class="trust-cell"><div class="num">24–48</div><div class="label">Hour Turnaround</div></div>
+    <div class="trust-cell"><div class="num">100%</div><div class="label">Free Diagnostics</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="testimonial-strip">
+    <div class="quote-mark">“</div>
+    <div>
+      <blockquote>They quoted me a fair price before touching my laptop, and had it back the next day. No surprises on the bill.</blockquote>
+      <cite>— A. Owusu, Mpraeso</cite>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" style="padding-bottom:0;">
+  <div class="contact-grid">
+    <div class="contact-block">
+      <div class="index">01 — Visit</div>
+      <h4>Location</h4>
+      <p>Ashanti Region, Ghana</p>
+      <p>Open Mon – Sat</p>
+      <p>08:00 am - 7:00pm</p>
+    </div>
+    <div class="contact-block">
+      <div class="index">02 — Call / WhatsApp</div>
+      <h4>Contact</h4>
+      <a href="tel:+233241557271">+233 241 55 7271</a>
+      <a href="tel:+233204078079">+233 204 07 8079</a>
+      <a href="https://wa.me/233204078079">WhatsApp us</a>
+    </div>
+    <div class="contact-block">
+      <div class="index">03 — Payment</div>
+      <h4>We Accept</h4>
+      <p>Mobile Money · Cash</p>
+      <p>Card (coming soon)</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Cypher IT Solutions</span>
+  <span>Phones · Laptops · Accessories · Repairs</span>
+</footer>
+
+<script>
+function openSearch(){ document.getElementById("myOverlay").style.display = "block"; }
+function closeSearch(){ document.getElementById("myOverlay").style.display = "none"; }
+
+/* Countdown — resets every 12 hours for demo */
+function startCountdown() {
+  const end = new Date();
+  end.setHours(end.getHours() + 8);
+  end.setMinutes(end.getMinutes() + 32);
+  function tick() {
+    const now = new Date();
+    let diff = Math.max(0, end - now);
+    const h = Math.floor(diff / 3600000); diff %= 3600000;
+    const m = Math.floor(diff / 60000); diff %= 60000;
+    const s = Math.floor(diff / 1000);
+    document.getElementById("cd-h").textContent = String(h).padStart(2,"0");
+    document.getElementById("cd-m").textContent = String(m).padStart(2,"0");
+    document.getElementById("cd-s").textContent = String(s).padStart(2,"0");
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+function productCard(p) {
+  const disc = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+  const badgeClass = (p.badge === "Flash Sale") ? "flash" : "";
+  return `
+    <div class="product-card">
+      <a href="product.html?id=${p.id}" class="product-img" style="background-image:url('${p.image}');display:block;">
+        ${p.badge ? `<div class="product-badge ${badgeClass}">${p.badge}</div>` : ""}
+        ${disc > 0 ? `<div class="discount-flag">-${disc}%</div>` : ""}
+      </a>
+      <div class="product-body">
+        <div class="product-brand">${p.brand}</div>
+        <a href="product.html?id=${p.id}" class="product-name">${p.name}</a>
+        <div class="product-spec">${p.specs}</div>
+        <div class="product-rating"><span class="stars">★</span> ${p.rating} (${p.reviews})</div>
+        <div class="product-foot">
+          <div class="price-block">
+            ${p.oldPrice ? `<div class="price-old">${CypherProducts.formatPrice(p.oldPrice)}</div>` : ""}
+            <div class="price-new">${CypherProducts.formatPrice(p.price)}</div>
+          </div>
+          <button class="add-btn" onclick="event.preventDefault();addToCart('${p.id}')">Add to Cart</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function addToCart(id) {
+  if (CypherCart.addItem(id, 1)) {
+    CypherCart.showToast("Added to cart");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  startCountdown();
+
+  const flashItems = CypherProducts.filter(p =>
+    p.badge === "Flash Sale" || (p.oldPrice && (p.oldPrice - p.price) / p.oldPrice > 0.15)
+  ).slice(0, 8);
+  document.getElementById("flash-grid").innerHTML = flashItems.map(productCard).join("");
+
+  const featured = [
+    CypherProducts.getById("lp-001"),
+    CypherProducts.getById("ph-001"),
+    CypherProducts.getById("lp-002"),
+    CypherProducts.getById("ac-001"),
+    CypherProducts.getById("ph-003"),
+    CypherProducts.getById("lp-003"),
+    CypherProducts.getById("ac-002"),
+    CypherProducts.getById("ph-007"),
+    CypherProducts.getById("lp-004"),
+    CypherProducts.getById("ph-010"),
+    CypherProducts.getById("ac-010"),
+    CypherProducts.getById("lp-006")
+  ].filter(Boolean);
+  document.getElementById("featured-grid").innerHTML = featured.map(productCard).join("");
+});
+</script>
+</body>
+</html>

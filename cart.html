@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart — Cypher IT Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="products.js"></script>
+<script src="cart.js"></script>
+<script src="account-nav.js"></script>
+<style>
+  :root{
+    --paper:#EDEAE2; --paper-2:#E2DDD0; --ink:#1A1B17; --ink-soft:#54564E;
+    --orange:#FF5A1F; --orange-deep:#D6480F; --steel:#2F5A7A;
+    --display:'Archivo Black',sans-serif; --sans:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.55;}
+  a{color:inherit;text-decoration:none;}
+
+  nav{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:22px 5vw;border-bottom:2px solid var(--ink);
+    position:sticky;top:0;z-index:100;background:var(--paper);
+  }
+  .logo{font-family:var(--display);font-size:1.15rem;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px;}
+  .nav-links{display:flex;gap:32px;font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.04em;}
+  .nav-links a{position:relative;padding-bottom:3px;}
+  .nav-links a::after{content:'';position:absolute;left:0;bottom:0;width:0;height:2px;background:var(--orange);transition:width 0.25s;}
+  .nav-links a:hover::after{width:100%;}
+  .nav-right{display:flex;align-items:center;gap:18px;}
+  .nav-link-auth{font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-soft);}
+  .nav-link-auth:hover{color:var(--orange-deep);}
+  .nav-cta{
+    font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.04em;
+    border:2px solid var(--ink);padding:9px 18px;transition:all 0.2s;
+  }
+  .nav-cta:hover{background:var(--ink);color:var(--paper);}
+  .cart-link{position:relative;font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+  .cart-badge{
+    display:none;position:absolute;top:-8px;right:-12px;
+    background:var(--orange);color:var(--paper);font-size:0.65rem;font-weight:600;
+    min-width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;
+  }
+
+  .page-head{padding:50px 5vw 30px;border-bottom:2px solid var(--ink);}
+  .breadcrumb{font-family:var(--mono);font-size:0.76rem;color:var(--steel);text-transform:uppercase;margin-bottom:14px;}
+  .breadcrumb a:hover{color:var(--orange-deep);}
+  h1{font-family:var(--display);font-size:clamp(1.8rem,4vw,2.6rem);text-transform:uppercase;}
+
+  main{padding:40px 5vw 80px;max-width:1100px;}
+  .cart-empty{text-align:center;padding:80px 20px;}
+  .cart-empty h2{font-family:var(--display);font-size:1.6rem;text-transform:uppercase;margin-bottom:12px;}
+  .cart-empty p{color:var(--ink-soft);margin-bottom:28px;}
+  .btn-solid{
+    display:inline-block;font-family:var(--mono);font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;
+    background:var(--orange);color:var(--paper);padding:14px 28px;border:2px solid var(--orange);transition:all 0.2s;
+  }
+  .btn-solid:hover{background:transparent;color:var(--orange-deep);}
+
+  .cart-table{width:100%;border-collapse:collapse;border:2px solid var(--ink);}
+  .cart-table th{
+    font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.04em;
+    text-align:left;padding:14px 16px;border-bottom:2px solid var(--ink);background:var(--paper-2);
+  }
+  .cart-table td{padding:18px 16px;border-bottom:1px solid var(--line-soft,rgba(26,27,23,0.18));vertical-align:middle;}
+  .cart-table tr:last-child td{border-bottom:none;}
+  .cart-item{display:flex;align-items:center;gap:16px;}
+  .cart-item img{width:72px;height:72px;object-fit:cover;border:1.5px solid var(--ink);}
+  .cart-item-name{font-family:var(--display);font-size:0.95rem;text-transform:uppercase;}
+  .qty-control{display:flex;align-items:center;gap:0;border:1.5px solid var(--ink);}
+  .qty-control button{
+    width:34px;height:34px;background:transparent;border:none;cursor:pointer;
+    font-family:var(--mono);font-size:1rem;color:var(--ink);
+  }
+  .qty-control button:hover{background:var(--ink);color:var(--paper);}
+  .qty-control input{
+    width:42px;height:34px;text-align:center;border:none;border-left:1.5px solid var(--ink);border-right:1.5px solid var(--ink);
+    font-family:var(--mono);font-size:0.9rem;background:transparent;color:var(--ink);
+  }
+  .price-cell{font-family:var(--mono);font-weight:600;font-size:1rem;}
+  .remove-btn{
+    font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;color:var(--ink-soft);
+    background:none;border:none;cursor:pointer;letter-spacing:0.03em;
+  }
+  .remove-btn:hover{color:var(--orange-deep);}
+
+  .cart-summary{
+    margin-top:32px;display:flex;justify-content:flex-end;
+  }
+  .summary-box{
+    border:2px solid var(--ink);padding:28px 32px;min-width:300px;
+  }
+  .summary-row{display:flex;justify-content:space-between;margin-bottom:12px;font-family:var(--mono);font-size:0.88rem;}
+  .summary-row.total{font-size:1.15rem;font-weight:600;margin-top:16px;padding-top:16px;border-top:2px solid var(--ink);}
+  .summary-actions{margin-top:24px;display:flex;flex-direction:column;gap:12px;}
+  .btn-line{
+    display:block;text-align:center;font-family:var(--mono);font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;
+    border:2px solid var(--ink);padding:13px 26px;transition:all 0.2s;
+  }
+  .btn-line:hover{background:var(--ink);color:var(--paper);}
+
+  footer{
+    padding:30px 5vw;display:flex;justify-content:space-between;align-items:center;
+    font-family:var(--mono);font-size:0.74rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.03em;
+    border-top:2px solid var(--ink);
+  }
+
+  @media (max-width:880px){
+    .nav-links{display:none;}
+    .cart-table thead{display:none;}
+    .cart-table,.cart-table tbody,.cart-table tr,.cart-table td{display:block;width:100%;}
+    .cart-table tr{border-bottom:2px solid var(--ink);padding:16px 0;}
+    .cart-table td{padding:8px 0;border:none;}
+    .cart-summary{justify-content:stretch;}
+    .summary-box{width:100%;}
+    footer{flex-direction:column;gap:10px;text-align:center;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><rect x="1" y="1" width="28" height="28" stroke="#1A1B17" stroke-width="2"/><path d="M20 8H12C9.79086 8 8 9.79086 8 12V18C8 20.2091 9.79086 22 12 22H20" stroke="#1A1B17" stroke-width="2.4" stroke-linecap="square"/><circle cx="21.5" cy="8.5" r="2" fill="#FF5A1F"/><circle cx="21.5" cy="21.5" r="2" fill="#FF5A1F"/></svg>
+    CYPHER IT SOLUTIONS
+  </a>
+  <div class="nav-links">
+    <a href="laptop.html">Laptops</a>
+    <a href="phones.html">Phones</a>
+    <a href="accessories.html">Accessories</a>
+    <a href="index.html#repairs">Repairs</a>
+  </div>
+  <div class="nav-right">
+    <a href="cart.html" class="cart-link"><i class="fa fa-shopping-cart"></i> Cart <span class="cart-badge"></span></a>
+    <a href="login.html" class="nav-link-auth">Login</a>
+    <a href="signup.html" class="nav-cta">Sign Up</a>
+  </div>
+</nav>
+
+<div class="page-head">
+  <div class="breadcrumb"><a href="index.html">Home</a> / Cart</div>
+  <h1>Your Cart</h1>
+</div>
+
+<main>
+  <div id="cart-content"></div>
+</main>
+
+<footer>
+  <span>© 2026 Cypher IT Solutions</span>
+  <span>Ashanti Region, Ghana</span>
+</footer>
+
+<script>
+function renderCart() {
+  const cart = CypherCart.getCart();
+  const el = document.getElementById("cart-content");
+
+  if (!cart.length) {
+    el.innerHTML = `
+      <div class="cart-empty">
+        <h2>Your cart is empty</h2>
+        <p>Browse phones, laptops or accessories and add something you like.</p>
+        <a href="index.html#shop" class="btn-solid">Continue Shopping</a>
+      </div>`;
+    return;
+  }
+
+  let rows = "";
+  cart.forEach(item => {
+    rows += `
+      <tr data-id="${item.id}">
+        <td>
+          <div class="cart-item">
+            <img src="${item.image}" alt="">
+            <div class="cart-item-name">${item.name}</div>
+          </div>
+        </td>
+        <td class="price-cell">${CypherProducts.formatPrice(item.price)}</td>
+        <td>
+          <div class="qty-control">
+            <button type="button" onclick="changeQty('${item.id}', -1)">−</button>
+            <input type="number" value="${item.qty}" min="1" onchange="setQty('${item.id}', this.value)">
+            <button type="button" onclick="changeQty('${item.id}', 1)">+</button>
+          </div>
+        </td>
+        <td class="price-cell">${CypherProducts.formatPrice(item.price * item.qty)}</td>
+        <td><button class="remove-btn" onclick="removeItem('${item.id}')">Remove</button></td>
+      </tr>`;
+  });
+
+  el.innerHTML = `
+    <table class="cart-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Qty</th>
+          <th>Subtotal</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="cart-summary">
+      <div class="summary-box">
+        <div class="summary-row"><span>Items</span><span>${CypherCart.getCount()}</span></div>
+        <div class="summary-row total"><span>Total</span><span>${CypherProducts.formatPrice(CypherCart.getTotal())}</span></div>
+        <div class="summary-actions">
+          <a href="checkout.html" class="btn-solid" style="text-align:center;">Proceed to Checkout</a>
+          <a href="index.html#shop" class="btn-line">Continue Shopping</a>
+        </div>
+      </div>
+    </div>`;
+}
+
+function changeQty(id, delta) {
+  const cart = CypherCart.getCart();
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  CypherCart.updateQty(id, item.qty + delta);
+  renderCart();
+}
+
+function setQty(id, val) {
+  CypherCart.updateQty(id, val);
+  renderCart();
+}
+
+function removeItem(id) {
+  CypherCart.removeItem(id);
+  renderCart();
+}
+
+document.addEventListener("DOMContentLoaded", renderCart);
+window.addEventListener("cypher-cart-updated", renderCart);
+</script>
+</body>
+</html>

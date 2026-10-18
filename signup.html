@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up — Cypher IT Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDEAE2; --paper-2:#E2DDD0; --ink:#1A1B17; --ink-soft:#54564E;
+    --orange:#FF5A1F; --orange-deep:#D6480F; --steel:#2F5A7A;
+    --line-soft:rgba(26,27,23,0.18);
+    --display:'Archivo Black',sans-serif; --sans:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.55;min-height:100vh;display:flex;flex-direction:column;}
+  a{color:inherit;text-decoration:none;}
+
+  nav{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:22px 5vw;border-bottom:2px solid var(--ink);
+  }
+  .logo{font-family:var(--display);font-size:1.15rem;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px;}
+  .nav-link-back{font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-soft);}
+  .nav-link-back:hover{color:var(--orange-deep);}
+
+  main{flex:1;display:flex;align-items:center;justify-content:center;padding:60px 5vw;}
+
+  .auth-card{
+    width:100%;max-width:460px;border:2px solid var(--ink);background:var(--paper);position:relative;
+  }
+  .auth-card::before{
+    content:'';position:absolute;top:-2px;right:-2px;width:16px;height:16px;
+    background:var(--orange);
+  }
+  .auth-body{padding:44px 40px;}
+  .auth-index{font-family:var(--mono);font-size:0.74rem;color:var(--steel);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .auth-index::before{content:'§';color:var(--orange);font-size:1rem;}
+  h1.auth-title{font-family:var(--display);font-size:1.7rem;text-transform:uppercase;margin-bottom:10px;}
+  .auth-sub{color:var(--ink-soft);font-size:0.9rem;margin-bottom:30px;}
+
+  form{display:flex;flex-direction:column;gap:20px;}
+  .field label{display:block;font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-soft);margin-bottom:8px;}
+  .field input{
+    width:100%;background:transparent;border:none;border-bottom:1.5px solid var(--ink);
+    padding:9px 2px;color:var(--ink);font-family:var(--sans);font-size:0.96rem;outline:none;
+  }
+  .field input:focus{border-color:var(--orange-deep);}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+
+  .terms-line{display:flex;align-items:flex-start;gap:10px;font-family:var(--mono);font-size:0.74rem;color:var(--ink-soft);}
+  .terms-line input{width:auto;margin-top:3px;}
+  .terms-line a{color:var(--orange-deep);}
+
+  .submit-btn{
+    margin-top:6px;font-family:var(--mono);font-size:0.84rem;text-transform:uppercase;letter-spacing:0.04em;
+    background:var(--orange);color:var(--paper);padding:15px 30px;border:2px solid var(--orange);
+    cursor:pointer;transition:all 0.2s;width:100%;
+  }
+  .submit-btn:hover{background:transparent;color:var(--orange-deep);}
+
+  .auth-switch{margin-top:26px;text-align:center;font-family:var(--mono);font-size:0.8rem;color:var(--ink-soft);}
+  .auth-switch a{color:var(--orange-deep);border-bottom:1px solid var(--orange-deep);}
+
+  .notice{
+    margin-top:24px;padding:14px 16px;background:var(--paper-2);border-left:3px solid var(--orange);
+    font-family:var(--mono);font-size:0.74rem;color:var(--ink-soft);line-height:1.6;display:none;
+  }
+  .notice.show{display:block;}
+  .notice.error{border-left-color:#c0392b;color:#8c2f22;}
+
+  footer{
+    padding:24px 5vw;text-align:center;border-top:2px solid var(--ink);
+    font-family:var(--mono);font-size:0.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.03em;
+  }
+
+  @media (max-width:500px){
+    .auth-body{padding:34px 26px;}
+    .field-row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="1" width="28" height="28" stroke="#1A1B17" stroke-width="2"/>
+      <path d="M20 8H12C9.79086 8 8 9.79086 8 12V18C8 20.2091 9.79086 22 12 22H20" stroke="#1A1B17" stroke-width="2.4" stroke-linecap="square"/>
+      <circle cx="21.5" cy="8.5" r="2" fill="#FF5A1F"/>
+      <circle cx="21.5" cy="21.5" r="2" fill="#FF5A1F"/>
+    </svg>
+    CYPHER IT
+  </a>
+  <a href="index.html" class="nav-link-back">← Back to site</a>
+</nav>
+
+<main>
+  <div class="auth-card">
+    <div class="auth-body">
+      <div class="auth-index">NEW ACCOUNT</div>
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-sub">Sign up to track repairs, save your orders, and check status without calling in.</p>
+
+      <form id="signup-form">
+        <div class="field-row">
+          <div class="field">
+            <label for="fname">First name</label>
+            <input type="text" id="fname" required>
+          </div>
+          <div class="field">
+            <label for="lname">Last name</label>
+            <input type="text" id="lname" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" required>
+        </div>
+        <div class="field">
+          <label for="phone">Phone / WhatsApp</label>
+          <input type="text" id="phone" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" required>
+        </div>
+        <label class="terms-line">
+          <input type="checkbox" required>
+          I agree to be contacted about my orders and repairs.
+        </label>
+        <button type="submit" class="submit-btn">Create Account</button>
+      </form>
+
+      <div class="auth-switch">
+        Already have an account? <a href="login.html">Log in</a>
+      </div>
+
+      <div class="notice" id="notice">
+        This form isn't connected to a database yet — it's a working design only. To actually create and store accounts, this needs a backend service (Firebase Auth is a solid free option to add later).
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>© 2026 Cypher IT Solutions</footer>
+
+<script src="auth.js"></script>
+<script src="account-nav.js"></script>
+
+</body>
+</html>

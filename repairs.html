@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cypher IT Solutions — Devices &amp; Repairs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="script.js"></script>
+
+<!--Styling the css-->
+<style>
+  @media (max-width:880px) {
+    .ticket-form-repairs{
+      margin-left: auto;
+      width: 100%;
+    }
+  }
+
+  /* The overlay effect with black background */
+.overlay {
+  height: 100%;
+  width: 100%;
+  display: none;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0, 0.9); /* Black with a little bit see-through */
+}
+
+/* The content */
+.overlay-content {
+  position: relative;
+  top: 46%;
+  width: 80%;
+  text-align: center;
+  margin-top: 30px;
+  margin: auto;
+}
+
+/* Close button */
+.overlay .closebtn {
+  position: absolute;
+  top: 20px;
+  right: 45px;
+  font-size: 60px;
+  cursor: pointer;
+  color: white;
+}
+
+.overlay .closebtn:hover {
+  color: #ccc;
+}
+
+/* Style the search field */
+.overlay input[type=text] {
+  padding: 15px;
+  font-size: 17px;
+  border: none;
+  float: left;
+  width: 80%;
+  background: white;
+}
+
+.overlay input[type=text]:hover {
+  background: #f1f1f1;
+}
+
+/* Style the submit button */
+.overlay button {
+  float: left;
+  width: 20%;
+  padding: 15px;
+  background: #ddd;
+  font-size: 17px;
+  border: none;
+  cursor: pointer;
+}
+
+.overlay button:hover {
+  background: #bbb;
+}
+
+.openBtn{
+  border: none;
+  width: auto;
+  float: left;
+}
+
+  .site-search-form{display:flex;width:100%;max-width:900px;margin:0 auto;}
+  .site-search-form input[type=text]{float:none;width:100%;box-sizing:border-box;outline:none;}
+  .site-search-form button{float:none;flex:0 0 80px;width:80px;}
+  .site-search-form input[type=text]:focus{box-shadow:0 0 0 3px rgba(255,90,31,0.25);}
+</style>
+
+</head>
+<body>
+
+<!--navigation Bar with animation-->    
+<!--<div class="ticker-bar">
+  <div class="ticker-track">
+    <span>FREE DIAGNOSTICS</span><span>24–48HR TURNAROUND</span><span>90-DAY WARRANTY</span><span>LAPTOPS · PHONES · ACCESSORIES</span>
+    <span>FREE DIAGNOSTICS</span><span>24–48HR TURNAROUND</span><span>90-DAY WARRANTY</span><span>LAPTOPS · PHONES · ACCESSORIES</span>
+  </div>
+</div>-->
+
+<!--Header-->
+<nav>
+  <a href="index.html" class="logo">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="1" width="28" height="28" stroke="#1A1B17" stroke-width="2"/>
+      <path d="M20 8H12C9.79086 8 8 9.79086 8 12V18C8 20.2091 9.79086 22 12 22H20" stroke="#1A1B17" stroke-width="2.4" stroke-linecap="square"/>
+      <circle cx="21.5" cy="8.5" r="2" fill="#FF5A1F"/>
+      <circle cx="21.5" cy="21.5" r="2" fill="#FF5A1F"/>
+    </svg>
+    CYPHER IT</a></div>
+  
+    <!--Navigation links-->
+    <div class="nav-links">
+    <a href="laptop.html">Laptops</a>
+    <a href="phones.html">Phones</a>
+    <a href="accessories.html">Accessories</a>
+    <a href="repairs.html">Repairs</a>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:18px;">
+    <a href="login.html" class="nav-link-auth">Login</a>
+    <a href="signup.html" class="nav-cta">Sign Up</a>
+  </div>
+
+  <!--Search Button-->
+<button class="openBtn" onclick="openSearch()"><i class="fa fa-search"></i></button>
+
+<div id="myOverlay" class="overlay">
+  <span class="closebtn" onclick="closeSearch()" title="Close Overlay">x</span>
+  <div class="overlay-content">
+    <form action="search.html" method="GET" class="site-search-form">
+        <input type="text" placeholder="Search products..." name="q" aria-label="Search products" autocomplete="off" required>
+        <button type="submit" aria-label="Search"><i class="fa fa-search"></i></button>
+      </form>
+  </div>
+</div>
+</nav>
+
+
+<!--<section class="hero" style="border-bottom:2px solid var(--ink);padding:0;">
+  <div class="hero-left">
+    <div class="hero-tag">Ashanti Region, Ghana</div>
+    <h1 class="hero-title">Fix it right.<br>Buy it <span class="hl">smart.</span></h1>
+    <p class="hero-sub">Cypher IT Solutions sells laptops, phones and accessories — and repairs the ones you've already got. Free diagnostics, fair pricing, no runaround.</p>
+    <div class="hero-actions">
+      <a href="#shop" class="btn-solid">Browse Devices</a>
+      <a href="#repairs" class="btn-line">Book a Repair</a>
+    </div>
+    <div class="stamp">QUALITY<br>CHECKED<br>★ ★ ★</div>
+  </div>
+  <div class="hero-right">
+    <img src="https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=1200&q=80" alt="laptop">
+    <div class="tag-corner"><a href="#shop" class="stock-btn">IN STOCK NOW</a></div>
+  </div>
+</section>-->
+
+<div class="section-head">
+    <div class="left">
+      <div class="index">SERVICE</div>
+      <h2 class="section-title">How repairs <span class="hl">work</span></h2>
+    </div>
+    <div class="section-note">Drop it off, or send the details — we'll take it from there.</div>
+</div>
+
+<div class="ticket-form-repairs">
+      <div class="ticket-head">
+        <h3>Book a repair</h3>
+        <div class="ticket-no">TICKET #</div>
+      </div>
+      <p>Tell us what's wrong — we'll reply with a price and pickup options, usually within the hour.</p>
+      <form class="svc-form" action="https://formsubmit.co/cyphersoftwares77@gmail.com" method="POST">
+        <input type="hidden" name="_subject" value="New repair booking">
+        <input type="hidden" name="_captcha" value="false">
+        <div class="field-row" id="field-row-repairs">
+          <div class="field">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="Name" required style="width: 100%;">
+          </div>
+          <div class="field">
+            <label for="phone">Phone / WhatsApp</label>
+            <input type="text" id="phone" name="Phone" required style="width: 100%;">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="device">Device</label>
+            <select id="device" name="Device">
+              <option>Laptop</option>
+              <option>Phone</option>
+              <option>Tablet</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="issue-type">Issue type</label>
+            <select id="issue-type" name="Issue Type">
+              <option>Screen</option>
+              <option>Battery</option>
+              <option>Software</option>
+              <option>Charging port</option>
+              <option>Power</option>
+              <option>Not sure</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+            <label for="device">Laptop Type</label>
+            <select id="device" name="Device">
+              <option>HP</option>
+              <option>DELL</option>
+              <option>MacBook</option>
+              <option>Lenovo</option>
+              <option>Acer</option>
+              <option>Other</option>
+            </select>
+        
+        <div class="field">
+          <label for="issue">Describe the problem</label>
+          <textarea id="issue" name="Description" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Request Quote</button>
+        <div class="form-note">Request will be answered within 24 - 48 hours</div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section id="contact" style="padding-bottom:0;">
+  <div class="section-head">
+    <div class="left">
+      <!--<div class="index">REACH US</div>-->
+      <h2 class="section-title">Visit or <span class="hl">message</span></h2>
+    </div>
+  </div>
+  <div class="contact-grid">
+    <div class="contact-block">
+      <div class="index">LOCATION</div>
+      <h4>Cypher IT Solutions</h4>
+      <p>Eastern Region, Ghana</p>
+      <a href="mailto:cyphersoftwares77@gmail.com">cyphersoftwares77@gmail.com</a>
+      <a href="https://wa.me/233204078079" target="_blank" rel="noopener">WhatsApp us directly</a>
+    </div>
+    <div class="contact-block">
+      <div class="index">HOURS</div>
+      <h4>Open Daily</h4>
+      <p>Mon – Sat: 8:00am – 7:00pm</p>
+      <p>Sunday: By appointment</p>
+    </div>
+    <div class="contact-block">
+      <div class="index">SHORTCUTS</div>
+      <h4>Quick Links</h4>
+      <a href="laptop.html">Shop laptops</a>
+      <a href="#repairs">Book a repair</a>
+      <a href="#why">Why Cypher IT</a>
+      <a href="login.html">Login</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>© 2024 Cypher IT Solutions</div>
+  <div>Sales · Repairs · Service</div>
+</footer>
+
+<script src="account-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cypher IT Solutions — Devices &amp; Repairs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="site.js"></script>
+</head>
+<body>
+
+<!--navigation Bar with animation-->    
+<!--<div class="ticker-bar">
+  <div class="ticker-track">
+    <span>FREE DIAGNOSTICS</span><span>24–48HR TURNAROUND</span><span>90-DAY WARRANTY</span><span>LAPTOPS · PHONES · ACCESSORIES</span>
+    <span>FREE DIAGNOSTICS</span><span>24–48HR TURNAROUND</span><span>90-DAY WARRANTY</span><span>LAPTOPS · PHONES · ACCESSORIES</span>
+  </div>
+</div>-->
+
+<!--Header-->
+<nav>
+  <a href="index.html" class="logo">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="1" width="28" height="28" stroke="#1A1B17" stroke-width="2"/>
+      <path d="M20 8H12C9.79086 8 8 9.79086 8 12V18C8 20.2091 9.79086 22 12 22H20" stroke="#1A1B17" stroke-width="2.4" stroke-linecap="square"/>
+      <circle cx="21.5" cy="8.5" r="2" fill="#FF5A1F"/>
+      <circle cx="21.5" cy="21.5" r="2" fill="#FF5A1F"/>
+    </svg>
+    CYPHER IT</a></div>
+  <!--Navigation links-->
+    <div class="nav-links">
+    <a href="laptop.html">Laptops</a>
+    <a href="phones.html">Phones</a>
+    <a href="accessories.html">Accessories</a>
+    <a href="repairs.html">Repairs</a>
+  </div>
+
+  <!--Login and signup links-->
+  <div style="display:flex;align-items:center;gap:18px;">
+    <a href="login.html" class="nav-link-auth">Login</a>
+    <a href="signup.html" class="nav-cta">Sign Up</a>
+  </div>
+
+  <!--Search button-->
+<button class="openBtn" onclick="openSearch()"><i class="fa fa-search"></i></button>
+
+<div id="myOverlay" class="overlay">
+  <span class="closebtn" onclick="closeSearch()" title="Close Overlay">x</span>
+  <div class="overlay-content">
+    <form action="search.html" method="GET" class="site-search-form"><input type="text" placeholder="Search products..." name="q" aria-label="Search products" autocomplete="off" required><button type="submit" aria-label="Search"><i class="fa fa-search"></i></button></form>
+  </div>
+</div>
+</nav>
+
+
+<!--<section class="hero" style="border-bottom:2px solid var(--ink);padding:0;">
+  <div class="hero-left">
+    <div class="hero-tag">Ashanti Region, Ghana</div>
+    <h1 class="hero-title">Fix it right.<br>Buy it <span class="hl">smart.</span></h1>
+    <p class="hero-sub">Cypher IT Solutions sells laptops, phones and accessories — and repairs the ones you've already got. Free diagnostics, fair pricing, no runaround.</p>
+    <div class="hero-actions">
+      <a href="#shop" class="btn-solid">Browse Devices</a>
+      <a href="#repairs" class="btn-line">Book a Repair</a>
+    </div>
+    <div class="stamp">QUALITY<br>CHECKED<br>★ ★ ★</div>
+  </div>
+  <div class="hero-right">
+    <img src="https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=1200&q=80" alt="laptop">
+    <div class="tag-corner"><a href="#shop" class="stock-btn">IN STOCK NOW</a></div>
+  </div>
+</section>-->
+
+<section id="contact" style="padding-bottom:0;">
+  <div class="section-head">
+    <div class="left">
+      <div class="index">REACH US</div>
+      <h2 class="section-title">Visit or <span class="hl">message</span></h2>
+    </div>
+  </div>
+  <div class="contact-grid">
+    <div class="contact-block">
+      <div class="index">LOCATION</div>
+      <h4>Cypher IT Solutions</h4>
+      <p>Ashanti Region, Ghana</p>
+      <a href="mailto:hello@cypheritsolutions.com">hello@cypheritsolutions.com</a>
+      <a href="https://wa.me/233241557271" target="_blank" rel="noopener">WhatsApp us directly</a>
+    </div>
+    <div class="contact-block">
+      <div class="index">HOURS</div>
+      <h4>Open Daily</h4>
+      <p>Mon – Sat: 8:00am – 7:00pm</p>
+      <p>Sunday: By appointment</p>
+    </div>
+    <div class="contact-block">
+      <div class="index">SHORTCUTS</div>
+      <h4>Quick Links</h4>
+      <a href="#shop">Shop devices</a>
+      <a href="#repairs">Book a repair</a>
+      <a href="#why">Why Cypher IT</a>
+    </div>
+  </div>
+</section>
+
+<section id="contact" style="padding-bottom:0;">
+  <div class="section-head">
+    <div class="left">
+      <!--<div class="index">REACH US</div>-->
+      <h2 class="section-title">Visit or <span class="hl">message</span></h2>
+    </div>
+  </div>
+  <div class="contact-grid">
+    <div class="contact-block">
+      <div class="index">LOCATION</div>
+      <h4>Cypher IT Solutions</h4>
+      <p>Eastern Region, Ghana</p>
+      <a href="mailto:hello@cypheritsolutions.com">hello@cypheritsolutions.com</a>
+      <a href="https://wa.me/233241557271" target="_blank" rel="noopener">WhatsApp us directly</a>
+    </div>
+    <div class="contact-block">
+      <div class="index">HOURS</div>
+      <h4>Open Daily</h4>
+      <p>Mon – Sat: 8:00am – 7:00pm</p>
+      <p>Sunday: By appointment</p>
+    </div>
+    <div class="contact-block">
+      <div class="index">SHORTCUTS</div>
+      <h4>Quick Links</h4>
+      <a href="laptop.html">Shop laptops</a>
+      <a href="#repairs">Book a repair</a>
+      <a href="#why">Why Cypher IT</a>
+      <a href="login.html">Login</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>© 2024 Cypher IT Solutions</div>
+  <div>Sales · Repairs · Service</div>
+</footer>
+
+<script src="account-nav.js"></script>
+</body>
+</html>

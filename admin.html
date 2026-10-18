@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Cypher IT Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="products.js"></script>
+<script src="cart.js"></script>
+<style>
+  :root{
+    --paper:#EDEAE2; --paper-2:#E2DDD0; --ink:#1A1B17; --ink-soft:#54564E;
+    --orange:#FF5A1F; --orange-deep:#D6480F; --steel:#2F5A7A; --danger:#9b2226;
+    --display:'Archivo Black',sans-serif; --sans:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.5;}
+  a{color:inherit;text-decoration:none;}
+
+  .admin-shell{display:grid;grid-template-columns:240px 1fr;min-height:100vh;}
+  .sidebar{
+    background:var(--ink);color:var(--paper);padding:28px 0;display:flex;flex-direction:column;
+    position:sticky;top:0;height:100vh;
+  }
+  .sidebar .logo{
+    font-family:var(--display);font-size:0.95rem;padding:0 22px 28px;
+    border-bottom:1px solid rgba(237,234,226,0.15);margin-bottom:20px;
+  }
+  .sidebar .logo span{display:block;font-family:var(--mono);font-size:0.65rem;color:var(--orange);margin-top:6px;text-transform:uppercase;letter-spacing:0.06em;}
+  .nav-item{
+    display:block;padding:12px 22px;font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;
+    letter-spacing:0.04em;color:rgba(237,234,226,0.7);cursor:pointer;border:none;background:none;width:100%;text-align:left;
+  }
+  .nav-item:hover,.nav-item.active{color:var(--paper);background:rgba(255,90,31,0.15);}
+  .nav-item.active{border-left:3px solid var(--orange);}
+  .sidebar-foot{margin-top:auto;padding:20px 22px;border-top:1px solid rgba(237,234,226,0.15);}
+  .sidebar-foot a{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;color:rgba(237,234,226,0.6);}
+  .sidebar-foot a:hover{color:var(--orange);}
+
+  .main{padding:32px 36px 60px;}
+  .page-title{font-family:var(--display);font-size:1.6rem;text-transform:uppercase;margin-bottom:6px;}
+  .page-sub{font-family:var(--mono);font-size:0.78rem;color:var(--ink-soft);margin-bottom:28px;}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:36px;}
+  .stat-card{border:2px solid var(--ink);padding:20px 22px;background:var(--paper);}
+  .stat-card .num{font-family:var(--display);font-size:1.8rem;color:var(--orange);}
+  .stat-card .label{font-family:var(--mono);font-size:0.7rem;text-transform:uppercase;color:var(--ink-soft);margin-top:4px;}
+
+  .toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:center;}
+  .btn{
+    font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.03em;
+    padding:10px 18px;border:2px solid var(--ink);background:transparent;cursor:pointer;color:var(--ink);
+  }
+  .btn:hover{background:var(--ink);color:var(--paper);}
+  .btn-primary{background:var(--orange);border-color:var(--orange);color:var(--paper);}
+  .btn-primary:hover{background:transparent;color:var(--orange-deep);}
+  .btn-danger{border-color:var(--danger);color:var(--danger);}
+  .btn-danger:hover{background:var(--danger);color:var(--paper);}
+  .btn-sm{padding:6px 12px;font-size:0.68rem;}
+  .search-input{
+    font-family:var(--sans);font-size:0.9rem;padding:10px 14px;border:2px solid var(--ink);
+    background:transparent;min-width:220px;outline:none;
+  }
+  .filter-select{
+    font-family:var(--mono);font-size:0.75rem;padding:10px 12px;border:2px solid var(--ink);background:transparent;
+  }
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  table{width:100%;border-collapse:collapse;border:2px solid var(--ink);font-size:0.9rem;}
+  th{
+    font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;text-align:left;
+    padding:12px 14px;background:var(--paper-2);border-bottom:2px solid var(--ink);
+  }
+  td{padding:12px 14px;border-bottom:1px solid rgba(26,27,23,0.12);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:rgba(255,90,31,0.04);}
+  .thumb{width:48px;height:48px;object-fit:cover;border:1.5px solid var(--ink);}
+  .badge-pill{
+    display:inline-block;font-family:var(--mono);font-size:0.65rem;text-transform:uppercase;
+    padding:3px 8px;background:var(--ink);color:var(--paper);
+  }
+  .stock-ok{color:#2d6a4f;font-family:var(--mono);font-size:0.8rem;}
+  .stock-low{color:var(--orange-deep);font-family:var(--mono);font-size:0.8rem;}
+  .stock-out{color:var(--danger);font-family:var(--mono);font-size:0.8rem;}
+  .actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+  /* Modal */
+  .modal-overlay{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:300;
+    align-items:center;justify-content:center;padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:var(--paper);border:2px solid var(--ink);width:100%;max-width:640px;
+    max-height:90vh;overflow-y:auto;
+  }
+  .modal-head{
+    display:flex;justify-content:space-between;align-items:center;padding:18px 24px;
+    border-bottom:2px solid var(--ink);
+  }
+  .modal-head h2{font-family:var(--display);font-size:1.15rem;text-transform:uppercase;}
+  .modal-close{background:none;border:none;font-size:1.5rem;cursor:pointer;line-height:1;}
+  .modal-body{padding:24px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;}
+  .field input,.field select,.field textarea{
+    width:100%;padding:10px 12px;border:1.5px solid var(--ink);background:transparent;
+    font-family:var(--sans);font-size:0.92rem;color:var(--ink);outline:none;
+  }
+  .field textarea{min-height:80px;resize:vertical;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .modal-foot{padding:16px 24px;border-top:2px solid var(--ink);display:flex;gap:10px;justify-content:flex-end;}
+
+  .empty{padding:40px;text-align:center;color:var(--ink-soft);font-family:var(--mono);font-size:0.85rem;}
+  .toast{
+    position:fixed;bottom:24px;right:24px;background:var(--ink);color:var(--paper);
+    padding:14px 22px;font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;
+    border:2px solid var(--orange);z-index:400;opacity:0;transition:opacity 0.25s;pointer-events:none;
+  }
+  .toast.show{opacity:1;}
+
+  .note-box{
+    border:2px solid var(--ink);padding:16px 20px;margin-bottom:24px;background:var(--paper-2);
+    font-size:0.88rem;color:var(--ink-soft);
+  }
+  .note-box strong{color:var(--ink);font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;}
+
+  @media (max-width:900px){
+    .admin-shell{grid-template-columns:1fr;}
+    .sidebar{position:relative;height:auto;}
+    .stats{grid-template-columns:1fr 1fr;}
+    .field-row{grid-template-columns:1fr;}
+    table{font-size:0.8rem;}
+    .thumb{width:36px;height:36px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="admin-shell" id="admin-app" style="display:none;">
+  <aside class="sidebar">
+    <div class="logo">
+      CYPHER IT
+      <span>Admin Panel</span>
+    </div>
+    <button class="nav-item active" data-panel="dashboard">Dashboard</button>
+    <button class="nav-item" data-panel="products">Products</button>
+    <button class="nav-item" data-panel="orders">Orders</button>
+    <button class="nav-item" data-panel="customers">Customers</button>
+    <button class="nav-item" data-panel="settings">Settings</button>
+    <div class="sidebar-foot">
+      <a href="index.html">← View store</a><br><br>
+      <a href="#" id="logout-btn">Log out</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-sub">Overview of your shop</p>
+      <div class="stats" id="dash-stats"></div>
+      <div class="note-box">
+        <strong>Demo note</strong><br>
+        Products you add/edit are saved in this browser only (localStorage). Other devices won’t see them until you connect a real backend. Reset anytime from Settings.
+      </div>
+      <h2 class="page-title" style="font-size:1.15rem;margin-bottom:14px;">Low stock</h2>
+      <div id="low-stock-table"></div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="panel" id="panel-products">
+      <h1 class="page-title">Products</h1>
+      <p class="page-sub">Add, edit or remove items from your catalog</p>
+      <div class="toolbar">
+        <button class="btn btn-primary" id="btn-add-product"><i class="fa fa-plus"></i> Add product</button>
+        <input type="text" class="search-input" id="product-search" placeholder="Search products…">
+        <select class="filter-select" id="product-cat-filter">
+          <option value="all">All categories</option>
+          <option value="phones">Phones</option>
+          <option value="laptops">Laptops</option>
+          <option value="accessories">Accessories</option>
+        </select>
+      </div>
+      <div id="products-table-wrap"></div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="panel" id="panel-orders">
+      <h1 class="page-title">Orders</h1>
+      <p class="page-sub">Orders placed through checkout (stored in this browser)</p>
+      <div id="orders-table-wrap"></div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="panel" id="panel-customers">
+      <h1 class="page-title">Customers</h1>
+      <p class="page-sub">Accounts that signed up on this site</p>
+      <div id="customers-table-wrap"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="panel-settings">
+      <h1 class="page-title">Settings</h1>
+      <p class="page-sub">Catalog and admin options</p>
+      <div class="note-box">
+        <strong>Admin login</strong><br>
+        Email: <code>admin@cypheritsolutions.com</code><br>
+        Password: <code>admin123</code><br>
+        Change these in <code>auth.js</code> before going live.
+      </div>
+      <div class="toolbar">
+        <button class="btn" id="btn-export">Export products (JSON)</button>
+        <button class="btn" id="btn-import">Import products (JSON)</button>
+        <input type="file" id="import-file" accept="application/json" style="display:none;">
+        <button class="btn btn-danger" id="btn-reset">Reset catalog to defaults</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product form modal -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="modal-title">Add product</h2>
+      <button class="modal-close" id="modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="product-form">
+        <input type="hidden" id="f-id">
+        <div class="field-row">
+          <div class="field">
+            <label>Name *</label>
+            <input type="text" id="f-name" required>
+          </div>
+          <div class="field">
+            <label>Brand *</label>
+            <input type="text" id="f-brand" required>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Category *</label>
+            <select id="f-category" required>
+              <option value="phones">Phones</option>
+              <option value="laptops">Laptops</option>
+              <option value="accessories">Accessories</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Condition</label>
+            <input type="text" id="f-condition" placeholder="Brand New / UK-Used · Grade A">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Price (GHS) *</label>
+            <input type="number" id="f-price" min="0" step="1" required>
+          </div>
+          <div class="field">
+            <label>Old price (optional)</label>
+            <input type="number" id="f-oldPrice" min="0" step="1" placeholder="Leave empty if none">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Stock *</label>
+            <input type="number" id="f-stock" min="0" step="1" required>
+          </div>
+          <div class="field">
+            <label>Badge</label>
+            <input type="text" id="f-badge" placeholder="Flash Sale, Hot Deal, or empty">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Rating</label>
+            <input type="number" id="f-rating" min="0" max="5" step="0.1" value="4.0">
+          </div>
+          <div class="field">
+            <label>Reviews count</label>
+            <input type="number" id="f-reviews" min="0" step="1" value="0">
+          </div>
+        </div>
+        <div class="field">
+          <label>Main image URL or path *</label>
+          <input type="text" id="f-image" required placeholder="images/my-photo.jpg or https://...">
+        </div>
+        <div class="field">
+          <label>More photos (optional — one URL or path per line, up to 5 total)</label>
+          <textarea id="f-images" rows="4" placeholder="images/photo2.jpg&#10;images/photo3.jpg&#10;https://..."></textarea>
+        </div>
+        <div class="field">
+          <label>Short specs (shown on cards)</label>
+          <input type="text" id="f-specs" placeholder='6.5" | 8GB/128GB | 5000mAh'>
+        </div>
+        <div class="field">
+          <label>Description</label>
+          <textarea id="f-description" placeholder="Longer text for the product detail page"></textarea>
+        </div>
+        <div class="field">
+          <label>Full specs (one per line: Label: Value)</label>
+          <textarea id="f-fullSpecs" placeholder="Display: 6.5 AMOLED&#10;RAM / Storage: 8GB / 128GB&#10;Battery: 5000mAh"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="modal-cancel">Cancel</button>
+      <button class="btn btn-primary" id="modal-save">Save product</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  /* ---- Auth guard ---- */
+  function getSession() {
+    try { return JSON.parse(localStorage.getItem("cypher_session")); } catch (e) { return null; }
+  }
+  const session = getSession();
+  if (!session || session.role !== "admin") {
+    window.location.href = "login.html";
+    return;
+  }
+  document.getElementById("admin-app").style.display = "grid";
+
+  const ORDERS_KEY = "cypher_orders";
+  const USERS_KEY = "cypher_users";
+
+  function toast(msg) {
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove("show"), 2200);
+  }
+
+  function getProducts() {
+    return window.CypherProductsAPI.reload();
+  }
+
+  function saveProducts(list) {
+    window.CypherProductsAPI.save(list);
+  }
+
+  function getOrders() {
+    try { return JSON.parse(localStorage.getItem(ORDERS_KEY)) || []; } catch (e) { return []; }
+  }
+
+  function getUsers() {
+    try { return JSON.parse(localStorage.getItem(USERS_KEY)) || []; } catch (e) { return []; }
+  }
+
+  function formatPrice(n) {
+    return "GHS " + Number(n).toLocaleString("en-GH");
+  }
+
+  function parseFullSpecs(text) {
+    const obj = {};
+    if (!text || !text.trim()) return obj;
+    text.split("\n").forEach((line) => {
+      const i = line.indexOf(":");
+      if (i > 0) {
+        const k = line.slice(0, i).trim();
+        const v = line.slice(i + 1).trim();
+        if (k && v) obj[k] = v;
+      }
+    });
+    return obj;
+  }
+
+  function fullSpecsToText(obj) {
+    if (!obj) return "";
+    return Object.entries(obj).map(([k, v]) => k + ": " + v).join("\n");
+  }
+
+  function nextId(category, list) {
+    const prefix = category === "phones" ? "ph-" : category === "laptops" ? "lp-" : "ac-";
+    let max = 0;
+    list.forEach((p) => {
+      if (p.id && p.id.startsWith(prefix)) {
+        const n = parseInt(p.id.replace(prefix, ""), 10);
+        if (!isNaN(n) && n > max) max = n;
+      }
+    });
+    return prefix + String(max + 1).padStart(3, "0");
+  }
+
+  /* ---- Navigation ---- */
+  document.querySelectorAll(".nav-item").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".nav-item").forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("panel-" + btn.dataset.panel).classList.add("active");
+      if (btn.dataset.panel === "dashboard") renderDashboard();
+      if (btn.dataset.panel === "products") renderProducts();
+      if (btn.dataset.panel === "orders") renderOrders();
+      if (btn.dataset.panel === "customers") renderCustomers();
+    });
+  });
+
+  document.getElementById("logout-btn").addEventListener("click", (e) => {
+    e.preventDefault();
+    localStorage.removeItem("cypher_session");
+    window.location.href = "login.html";
+  });
+
+  /* ---- Dashboard ---- */
+  function renderDashboard() {
+    const products = getProducts();
+    const orders = getOrders();
+    const users = getUsers();
+    const low = products.filter((p) => p.stock > 0 && p.stock <= 5);
+    const out = products.filter((p) => p.stock < 1);
+    const value = products.reduce((s, p) => s + p.price * (p.stock || 0), 0);
+
+    document.getElementById("dash-stats").innerHTML = `
+      <div class="stat-card"><div class="num">${products.length}</div><div class="label">Products</div></div>
+      <div class="stat-card"><div class="num">${orders.length}</div><div class="label">Orders</div></div>
+      <div class="stat-card"><div class="num">${users.length}</div><div class="label">Customers</div></div>
+      <div class="stat-card"><div class="num">${out.length}</div><div class="label">Out of stock</div></div>
+    `;
+
+    if (!low.length && !out.length) {
+      document.getElementById("low-stock-table").innerHTML = '<div class="empty">No low-stock items right now.</div>';
+      return;
+    }
+    const rows = [...out, ...low].map((p) => `
+      <tr>
+        <td>${p.name}</td>
+        <td>${p.category}</td>
+        <td class="${p.stock < 1 ? "stock-out" : "stock-low"}">${p.stock < 1 ? "Out of stock" : p.stock + " left"}</td>
+        <td>${formatPrice(p.price)}</td>
+      </tr>
+    `).join("");
+    document.getElementById("low-stock-table").innerHTML = `
+      <table>
+        <thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Price</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  /* ---- Products table ---- */
+  let productFilter = { q: "", cat: "all" };
+
+  function renderProducts() {
+    let list = getProducts();
+    if (productFilter.cat !== "all") list = list.filter((p) => p.category === productFilter.cat);
+    if (productFilter.q) {
+      const q = productFilter.q.toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          (p.brand || "").toLowerCase().includes(q) ||
+          (p.id || "").toLowerCase().includes(q)
+      );
+    }
+
+    if (!list.length) {
+      document.getElementById("products-table-wrap").innerHTML = '<div class="empty">No products match.</div>';
+      return;
+    }
+
+    const rows = list
+      .map((p) => {
+        const stockClass = p.stock < 1 ? "stock-out" : p.stock <= 5 ? "stock-low" : "stock-ok";
+        return `
+        <tr>
+          <td><img class="thumb" src="${p.image}" alt="" onerror="this.style.opacity=0.3"></td>
+          <td>
+            <div style="font-family:var(--display);font-size:0.85rem;text-transform:uppercase;">${escapeHtml(p.name)}</div>
+            <div style="font-family:var(--mono);font-size:0.68rem;color:var(--ink-soft);">${p.id} · ${p.brand}</div>
+          </td>
+          <td>${p.category}</td>
+          <td>${formatPrice(p.price)}</td>
+          <td class="${stockClass}">${p.stock}</td>
+          <td>${p.badge ? '<span class="badge-pill">' + escapeHtml(p.badge) + "</span>" : "—"}</td>
+          <td>
+            <div class="actions">
+              <button class="btn btn-sm" onclick="AdminUI.editProduct('${p.id}')">Edit</button>
+              <button class="btn btn-sm btn-danger" onclick="AdminUI.deleteProduct('${p.id}')">Delete</button>
+            </div>
+          </td>
+        </tr>`;
+      })
+      .join("");
+
+    document.getElementById("products-table-wrap").innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th></th><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Badge</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  document.getElementById("product-search").addEventListener("input", (e) => {
+    productFilter.q = e.target.value.trim();
+    renderProducts();
+  });
+  document.getElementById("product-cat-filter").addEventListener("change", (e) => {
+    productFilter.cat = e.target.value;
+    renderProducts();
+  });
+
+  /* ---- Modal ---- */
+  const modal = document.getElementById("product-modal");
+  let editingId = null;
+
+  function openModal(product) {
+    editingId = product ? product.id : null;
+    document.getElementById("modal-title").textContent = product ? "Edit product" : "Add product";
+    document.getElementById("f-id").value = product ? product.id : "";
+    document.getElementById("f-name").value = product ? product.name : "";
+    document.getElementById("f-brand").value = product ? product.brand : "";
+    document.getElementById("f-category").value = product ? product.category : "phones";
+    document.getElementById("f-condition").value = product ? product.condition || "" : "Brand New";
+    document.getElementById("f-price").value = product ? product.price : "";
+    document.getElementById("f-oldPrice").value = product && product.oldPrice ? product.oldPrice : "";
+    document.getElementById("f-stock").value = product ? product.stock : 1;
+    document.getElementById("f-badge").value = product && product.badge ? product.badge : "";
+    document.getElementById("f-rating").value = product ? product.rating || 4 : 4;
+    document.getElementById("f-reviews").value = product ? product.reviews || 0 : 0;
+    document.getElementById("f-image").value = product ? product.image : "images/";
+    const extraImgs = product && Array.isArray(product.images)
+      ? product.images.filter((u) => u && u !== product.image)
+      : [];
+    document.getElementById("f-images").value = extraImgs.join("\n");
+    document.getElementById("f-specs").value = product ? product.specs || "" : "";
+    document.getElementById("f-description").value = product ? product.description || "" : "";
+    document.getElementById("f-fullSpecs").value = product ? fullSpecsToText(product.fullSpecs) : "";
+    modal.classList.add("open");
+  }
+
+  function closeModal() {
+    modal.classList.remove("open");
+    editingId = null;
+  }
+
+  document.getElementById("btn-add-product").addEventListener("click", () => openModal(null));
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-cancel").addEventListener("click", closeModal);
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  document.getElementById("modal-save").addEventListener("click", () => {
+    const form = document.getElementById("product-form");
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const list = getProducts().slice();
+    const category = document.getElementById("f-category").value;
+    const oldPriceRaw = document.getElementById("f-oldPrice").value;
+    const product = {
+      id: editingId || nextId(category, list),
+      name: document.getElementById("f-name").value.trim(),
+      brand: document.getElementById("f-brand").value.trim(),
+      category: category,
+      price: Number(document.getElementById("f-price").value),
+      oldPrice: oldPriceRaw === "" ? null : Number(oldPriceRaw),
+      image: document.getElementById("f-image").value.trim(),
+      images: (function () {
+        const main = document.getElementById("f-image").value.trim();
+        const extra = document.getElementById("f-images").value
+          .split("\n")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .filter((u) => u !== main);
+        const all = [main].concat(extra);
+        // unique, max 5
+        const seen = {};
+        return all.filter((u) => {
+          if (seen[u]) return false;
+          seen[u] = true;
+          return true;
+        }).slice(0, 5);
+      })(),
+      badge: document.getElementById("f-badge").value.trim() || null,
+      rating: Number(document.getElementById("f-rating").value) || 4,
+      reviews: Number(document.getElementById("f-reviews").value) || 0,
+      stock: Number(document.getElementById("f-stock").value) || 0,
+      specs: document.getElementById("f-specs").value.trim(),
+      condition: document.getElementById("f-condition").value.trim() || "Brand New",
+      description: document.getElementById("f-description").value.trim(),
+      fullSpecs: parseFullSpecs(document.getElementById("f-fullSpecs").value),
+    };
+
+    if (editingId) {
+      const idx = list.findIndex((p) => p.id === editingId);
+      if (idx >= 0) list[idx] = product;
+    } else {
+      list.push(product);
+    }
+
+    saveProducts(list);
+    closeModal();
+    renderProducts();
+    renderDashboard();
+    toast(editingId ? "Product updated" : "Product added");
+  });
+
+  window.AdminUI = {
+    editProduct(id) {
+      const p = getProducts().getById(id);
+      if (p) openModal(p);
+    },
+    deleteProduct(id) {
+      if (!confirm("Delete this product? This cannot be undone (in this browser).")) return;
+      const list = getProducts().filter((p) => p.id !== id);
+      saveProducts(list);
+      renderProducts();
+      renderDashboard();
+      toast("Product deleted");
+    },
+  };
+
+  /* ---- Orders ---- */
+  function renderOrders() {
+    const orders = getOrders();
+    if (!orders.length) {
+      document.getElementById("orders-table-wrap").innerHTML =
+        '<div class="empty">No orders yet. Orders appear here after customers complete checkout.</div>';
+      return;
+    }
+    const rows = orders
+      .slice()
+      .reverse()
+      .map((o) => {
+        const items = (o.items || [])
+          .map((i) => i.name + " ×" + i.qty)
+          .join(", ");
+        return `
+        <tr>
+          <td style="font-family:var(--mono);font-size:0.75rem;">${o.id || "—"}</td>
+          <td>${escapeHtml(o.name || "")}<br><span style="font-size:0.8rem;color:var(--ink-soft)">${escapeHtml(o.phone || "")}</span></td>
+          <td>${escapeHtml(o.city || "")}</td>
+          <td style="max-width:220px;font-size:0.85rem;">${escapeHtml(items)}</td>
+          <td>${formatPrice(o.total || 0)}</td>
+          <td>${escapeHtml(o.payment || "")}</td>
+          <td style="font-family:var(--mono);font-size:0.72rem;">${o.date || ""}</td>
+        </tr>`;
+      })
+      .join("");
+    document.getElementById("orders-table-wrap").innerHTML = `
+      <table>
+        <thead>
+          <tr><th>Order</th><th>Customer</th><th>City</th><th>Items</th><th>Total</th><th>Payment</th><th>Date</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  /* ---- Customers ---- */
+  function renderCustomers() {
+    const users = getUsers();
+    if (!users.length) {
+      document.getElementById("customers-table-wrap").innerHTML =
+        '<div class="empty">No customer accounts yet.</div>';
+      return;
+    }
+    const rows = users
+      .map(
+        (u) => `
+      <tr>
+        <td>${escapeHtml((u.firstName || "") + " " + (u.lastName || ""))}</td>
+        <td>${escapeHtml(u.email || "")}</td>
+        <td>${escapeHtml(u.phone || "")}</td>
+        <td>${u.role || "customer"}</td>
+      </tr>`
+      )
+      .join("");
+    document.getElementById("customers-table-wrap").innerHTML = `
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  /* ---- Settings ---- */
+  document.getElementById("btn-reset").addEventListener("click", () => {
+    if (!confirm("Reset all products to the original default catalog? Your admin changes will be lost.")) return;
+    window.CypherProductsAPI.reset();
+    renderProducts();
+    renderDashboard();
+    toast("Catalog reset to defaults");
+  });
+
+  document.getElementById("btn-export").addEventListener("click", () => {
+    const data = JSON.stringify(getProducts(), null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "cypher-products.json";
+    a.click();
+    URL.revokeObjectURL(url);
+    toast("Exported products JSON");
+  });
+
+  document.getElementById("btn-import").addEventListener("click", () => {
+    document.getElementById("import-file").click();
+  });
+  document.getElementById("import-file").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!Array.isArray(data)) throw new Error("Expected an array");
+        saveProducts(data);
+        renderProducts();
+        renderDashboard();
+        toast("Imported " + data.length + " products");
+      } catch (err) {
+        alert("Invalid JSON file: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
+
+  function escapeHtml(v) {
+    return String(v).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c])
+    );
+  }
+
+  // Initial render
+  renderDashboard();
+  renderProducts();
+})();
+</script>
+</body>
+</html>
