@@ -728,6 +728,70 @@ window.CypherProductsDefaults = [
       "Condition": "Grade A"
     }
   },
+    {
+    id: "lp-010",
+    name: "MacBook Pro 13\" 2019",
+    brand: "Apple",
+    category: "laptops",
+    price: 4900,
+    oldPrice: 5600,
+    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1484788984921-03950022c9ef?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=80"
+    ],
+    badge: null,
+    rating: 4.5,
+    reviews: 48,
+    stock: 3,
+    specs: "Core i5 / 8GB / 256GB SSD / 13.3\"",
+    condition: "UK-Used · Grade A",
+    description: "Intel MacBook Pro with Touch Bar. Still excellent for video, music and development workflows.",
+    fullSpecs: {
+      "Processor": "Intel Core i5 (8th gen)",
+      "RAM": "8GB",
+      "Storage": "256GB SSD",
+      "Display": "13.3\" Retina",
+      "Ports": "4× Thunderbolt 3",
+      "OS": "macOS Sonoma",
+      "Condition": "Grade A"
+    }
+  },
+    {
+    id: "lp-010",
+    name: "Toshiba 2130",
+    brand: "Lenovo",
+    category: "laptops",
+    price: 2100,
+    oldPrice: 2500,
+    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1484788984921-03950022c9ef?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=80"
+    ],
+    badge: "Flash Sale",
+    rating: 4.5,
+    reviews: 48,
+    stock: 3,
+    specs: "Core i5 / 8GB / 256GB SSD / 13.3\"",
+    condition: "UK-Used · Grade A",
+    description: "Intel MacBook Pro with Touch Bar. Still excellent for video, music and development workflows.",
+    fullSpecs: {
+      "Processor": "Intel Core i5 (8th gen)",
+      "RAM": "8GB",
+      "Storage": "256GB SSD",
+      "Display": "13.3\" Retina",
+      "Ports": "4× Thunderbolt 3",
+      "OS": "macOS Sonoma",
+      "Condition": "Grade A"
+    }
+  },
 
   /* ===================== ACCESSORIES ===================== */
   {
