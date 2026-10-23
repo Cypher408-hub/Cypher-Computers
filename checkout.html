@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="api.js"></script>
 <script src="products.js"></script>
 <script src="cart.js"></script>
 <script src="account-nav.js"></script>
@@ -264,16 +265,33 @@ document.getElementById("place-order-btn").addEventListener("click", function ()
     total: CypherCart.getTotal(),
     date: new Date().toLocaleString()
   };
-  try {
-    const orders = JSON.parse(localStorage.getItem("cypher_orders") || "[]");
-    orders.push(order);
-    localStorage.setItem("cypher_orders", JSON.stringify(orders));
-  } catch (e) {}
+  function finishCheckout() {
+    CypherCart.clearCart();
+    document.getElementById("checkout-main").style.display = "none";
+    document.getElementById("success-msg").style.display = "block";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
-  CypherCart.clearCart();
-  document.getElementById("checkout-main").style.display = "none";
-  document.getElementById("success-msg").style.display = "block";
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  if (window.CypherAPI && window.CypherAPI.submitOrder) {
+    window.CypherAPI.submitOrder(order)
+      .then(function () { finishCheckout(); })
+      .catch(function () {
+        // still complete order locally if API fails
+        try {
+          const orders = JSON.parse(localStorage.getItem("cypher_orders") || "[]");
+          orders.push(order);
+          localStorage.setItem("cypher_orders", JSON.stringify(orders));
+        } catch (e) {}
+        finishCheckout();
+      });
+  } else {
+    try {
+      const orders = JSON.parse(localStorage.getItem("cypher_orders") || "[]");
+      orders.push(order);
+      localStorage.setItem("cypher_orders", JSON.stringify(orders));
+    } catch (e) {}
+    finishCheckout();
+  }
 });
 
 document.addEventListener("DOMContentLoaded", renderOrder);

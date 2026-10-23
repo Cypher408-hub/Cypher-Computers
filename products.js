@@ -1079,7 +1079,7 @@ window.CypherProductsDefaults = [
   }
 ];
 
-/* Load catalog: localStorage override (from admin) or defaults */
+/* Load catalog: Netlify API → localStorage cache → defaults */
 (function () {
   const KEY = "cypher_products";
 
@@ -1118,7 +1118,6 @@ window.CypherProductsDefaults = [
     arr.formatPrice = function (n) {
       return "GHS " + Number(n).toLocaleString("en-GH");
     };
-    /** Returns 1–N image URLs for a product (gallery-ready). */
     arr.getImages = function (product) {
       if (!product) return [];
       if (Array.isArray(product.images) && product.images.length) return product.images.slice();
@@ -1127,7 +1126,7 @@ window.CypherProductsDefaults = [
     return arr;
   }
 
-  function load() {
+  function fromLocalOrDefaults() {
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) {
@@ -1137,31 +1136,72 @@ window.CypherProductsDefaults = [
         }
       }
     } catch (e) {}
-    // deep-ish copy of defaults so admin edits don't mutate the source array in-memory incorrectly
     const copy = JSON.parse(JSON.stringify(window.CypherProductsDefaults));
     return attachHelpers(copy);
   }
 
-  window.CypherProducts = load();
+  window.CypherProducts = fromLocalOrDefaults();
 
   window.CypherProductsAPI = {
     KEY: KEY,
     reload: function () {
-      window.CypherProducts = load();
+      window.CypherProducts = fromLocalOrDefaults();
       return window.CypherProducts;
     },
-    save: function (list) {
-      localStorage.setItem(KEY, JSON.stringify(list));
+    /** Apply a product list in-memory + local cache */
+    apply: function (list) {
+      try {
+        localStorage.setItem(KEY, JSON.stringify(list));
+      } catch (e) {}
       window.CypherProducts = attachHelpers(list);
       return window.CypherProducts;
     },
+    save: function (list) {
+      return window.CypherProductsAPI.apply(list);
+    },
     reset: function () {
-      localStorage.removeItem(KEY);
-      window.CypherProducts = load();
+      try { localStorage.removeItem(KEY); } catch (e) {}
+      window.CypherProducts = fromLocalOrDefaults();
       return window.CypherProducts;
     },
     defaults: function () {
       return JSON.parse(JSON.stringify(window.CypherProductsDefaults));
     },
+    /**
+     * Fetch live catalog from Netlify when available.
+     * Returns a Promise of the product array.
+     */
+    hydrateFromServer: async function () {
+      if (!window.CypherAPI || !window.CypherAPI.loadProducts) {
+        return window.CypherProducts;
+      }
+      try {
+        const remote = await window.CypherAPI.loadProducts();
+        if (Array.isArray(remote) && remote.length) {
+          window.CypherProductsAPI.apply(remote);
+          try {
+            window.dispatchEvent(new CustomEvent("cypher:products-ready"));
+          } catch (e2) {}
+        }
+      } catch (e) {
+        console.warn("hydrateFromServer:", e);
+      }
+      return window.CypherProducts;
+    },
   };
+
+  // Auto-hydrate after a tick so api.js can load first when both are deferred/ordered
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.CypherProductsAPI && window.CypherProductsAPI.hydrateFromServer) {
+        window.CypherProductsAPI.hydrateFromServer();
+      }
+    });
+  } else {
+    setTimeout(function () {
+      if (window.CypherProductsAPI && window.CypherProductsAPI.hydrateFromServer) {
+        window.CypherProductsAPI.hydrateFromServer();
+      }
+    }, 0);
+  }
 })();

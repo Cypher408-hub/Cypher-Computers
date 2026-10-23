@@ -168,6 +168,14 @@
             email: ADMIN_EMAIL,
             role: "admin",
           });
+          // Store password for Netlify admin API writes (session only)
+          try {
+            if (window.CypherAPI && window.CypherAPI.setAdminPassword) {
+              window.CypherAPI.setAdminPassword(password);
+            } else {
+              sessionStorage.setItem("cypher_admin_password", password);
+            }
+          } catch (e) {}
           showNotice(notice, "Welcome back, Admin. Redirecting…", false);
           setTimeout(() => {
             window.location.href = "admin.html";

@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="api.js"></script>
 <script src="products.js"></script>
 <script src="cart.js"></script>
 <style>
@@ -167,7 +168,7 @@
       <div class="stats" id="dash-stats"></div>
       <div class="note-box">
         <strong>Demo note</strong><br>
-        Products you add/edit are saved in this browser only (localStorage). Other devices won’t see them until you connect a real backend. Reset anytime from Settings.
+        On Netlify, product changes are saved to the live catalog for all visitors. Log in as admin first so saves can authenticate. If the server is unavailable, changes stay on this device only.
       </div>
       <h2 class="page-title" style="font-size:1.15rem;margin-bottom:14px;">Low stock</h2>
       <div id="low-stock-table"></div>
@@ -211,8 +212,11 @@
       <div class="note-box">
         <strong>Admin login</strong><br>
         Email: <code>admin@cypheritsolutions.com</code><br>
-        Password: <code>admin123</code><br>
-        Change these in <code>auth.js</code> before going live.
+        Password: <code>admin123</code> (change in <code>auth.js</code>)<br><br>
+        <strong>Netlify (live saves)</strong><br>
+        In Netlify → Site settings → Environment variables, set<br>
+        <code>ADMIN_PASSWORD</code> = the same password you use to log in as admin.<br>
+        Redeploy after changing it. Without this, product saves may only stay on your device.
       </div>
       <div class="toolbar">
         <button class="btn" id="btn-export">Export products (JSON)</button>
@@ -347,12 +351,39 @@
     return window.CypherProductsAPI.reload();
   }
 
-  function saveProducts(list) {
-    window.CypherProductsAPI.save(list);
+  async function saveProducts(list) {
+    window.CypherProductsAPI.apply(list);
+    if (window.CypherAPI && window.CypherAPI.saveProducts) {
+      try {
+        await window.CypherAPI.saveProducts(list);
+        toast("Saved to server");
+        return true;
+      } catch (err) {
+        console.error(err);
+        toast("Saved on this device only — server: " + (err.message || "failed"));
+        return false;
+      }
+    }
+    toast("Saved on this device only (API not available)");
+    return false;
   }
 
+  let cachedOrders = [];
   function getOrders() {
-    try { return JSON.parse(localStorage.getItem(ORDERS_KEY)) || []; } catch (e) { return []; }
+    return cachedOrders;
+  }
+
+  async function refreshOrders() {
+    if (window.CypherAPI && window.CypherAPI.loadOrders) {
+      try {
+        cachedOrders = await window.CypherAPI.loadOrders();
+      } catch (e) {
+        try { cachedOrders = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]"); } catch (e2) { cachedOrders = []; }
+      }
+    } else {
+      try { cachedOrders = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]"); } catch (e) { cachedOrders = []; }
+    }
+    return cachedOrders;
   }
 
   function getUsers() {
@@ -403,7 +434,9 @@
       document.getElementById("panel-" + btn.dataset.panel).classList.add("active");
       if (btn.dataset.panel === "dashboard") renderDashboard();
       if (btn.dataset.panel === "products") renderProducts();
-      if (btn.dataset.panel === "orders") renderOrders();
+      if (btn.dataset.panel === "orders") {
+        refreshOrders().then(function () { renderOrders(); renderDashboard(); });
+      }
       if (btn.dataset.panel === "customers") renderCustomers();
     });
   });
@@ -606,11 +639,12 @@
       list.push(product);
     }
 
-    saveProducts(list);
     closeModal();
-    renderProducts();
-    renderDashboard();
-    toast(editingId ? "Product updated" : "Product added");
+    toast(editingId ? "Saving…" : "Adding…");
+    saveProducts(list).then(function () {
+      renderProducts();
+      renderDashboard();
+    });
   });
 
   window.AdminUI = {
@@ -619,12 +653,13 @@
       if (p) openModal(p);
     },
     deleteProduct(id) {
-      if (!confirm("Delete this product? This cannot be undone (in this browser).")) return;
+      if (!confirm("Delete this product from the live catalog?")) return;
       const list = getProducts().filter((p) => p.id !== id);
-      saveProducts(list);
-      renderProducts();
-      renderDashboard();
-      toast("Product deleted");
+      toast("Deleting…");
+      saveProducts(list).then(function () {
+        renderProducts();
+        renderDashboard();
+      });
     },
   };
 
@@ -692,11 +727,14 @@
 
   /* ---- Settings ---- */
   document.getElementById("btn-reset").addEventListener("click", () => {
-    if (!confirm("Reset all products to the original default catalog? Your admin changes will be lost.")) return;
-    window.CypherProductsAPI.reset();
-    renderProducts();
-    renderDashboard();
-    toast("Catalog reset to defaults");
+    if (!confirm("Reset all products to the original default catalog and push to the live site?")) return;
+    const defaults = window.CypherProductsAPI.defaults();
+    toast("Resetting…");
+    saveProducts(defaults).then(function () {
+      renderProducts();
+      renderDashboard();
+      toast("Catalog reset to defaults");
+    });
   });
 
   document.getElementById("btn-export").addEventListener("click", () => {
@@ -722,10 +760,12 @@
       try {
         const data = JSON.parse(reader.result);
         if (!Array.isArray(data)) throw new Error("Expected an array");
-        saveProducts(data);
-        renderProducts();
-        renderDashboard();
-        toast("Imported " + data.length + " products");
+        toast("Importing…");
+        saveProducts(data).then(function () {
+          renderProducts();
+          renderDashboard();
+          toast("Imported " + data.length + " products");
+        });
       } catch (err) {
         alert("Invalid JSON file: " + err.message);
       }
@@ -740,9 +780,18 @@
     );
   }
 
-  // Initial render
-  renderDashboard();
-  renderProducts();
+  // Initial render — hydrate from Netlify then draw UI
+  async function boot() {
+    toast("Loading catalog…");
+    if (window.CypherProductsAPI && window.CypherProductsAPI.hydrateFromServer) {
+      await window.CypherProductsAPI.hydrateFromServer();
+    }
+    await refreshOrders();
+    renderDashboard();
+    renderProducts();
+    toast("Admin ready");
+  }
+  boot();
 })();
 </script>
 <script src="back-to-top.js" defer></script>

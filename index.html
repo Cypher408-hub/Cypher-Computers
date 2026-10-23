@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="api.js"></script>
 <script src="products.js"></script>
 <script src="cart.js"></script>
 <script src="account-nav.js"></script>
@@ -566,6 +567,30 @@ document.addEventListener("DOMContentLoaded", function () {
     CypherProducts.getById("lp-006")
   ].filter(Boolean);
   document.getElementById("featured-grid").innerHTML = featured.map(productCard).join("");
+});
+
+window.addEventListener("cypher:products-ready", function () {
+  const flashItems = CypherProducts.filter(p =>
+    p.badge === "Flash Sale" || (p.oldPrice && (p.oldPrice - p.price) / p.oldPrice > 0.15)
+  ).slice(0, 8);
+  const fg = document.getElementById("flash-grid");
+  if (fg) fg.innerHTML = flashItems.map(productCard).join("");
+  const featured = [
+    CypherProducts.getById("lp-001"),
+    CypherProducts.getById("ph-001"),
+    CypherProducts.getById("lp-002"),
+    CypherProducts.getById("ac-001"),
+    CypherProducts.getById("ph-003"),
+    CypherProducts.getById("lp-003"),
+    CypherProducts.getById("ac-002"),
+    CypherProducts.getById("ph-007"),
+    CypherProducts.getById("lp-004"),
+    CypherProducts.getById("ph-010"),
+    CypherProducts.getById("ac-010"),
+    CypherProducts.getById("lp-006")
+  ].filter(Boolean);
+  const fe = document.getElementById("featured-grid");
+  if (fe) fe.innerHTML = featured.map(productCard).join("");
 });
 </script>
 </body>
