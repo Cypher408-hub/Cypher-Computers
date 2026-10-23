@@ -11,6 +11,7 @@
 <script src="products.js"></script>
 <script src="cart.js"></script>
 <script src="account-nav.js"></script>
+<script src="back-to-top.js" defer></script>
 <style>
   :root{
     --paper:#EDEAE2; --paper-2:#E2DDD0; --ink:#1A1B17; --ink-soft:#54564E;
@@ -76,24 +77,33 @@
   .site-search-form input{flex:1;padding:16px;font-size:1.1rem;border:none;}
   .site-search-form button{width:70px;padding:16px;background:var(--orange);border:none;color:#fff;cursor:pointer;}
 
-  /* FLASH SALES */
-  .flash-header{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:28px;}
-  .countdown{
-    display:flex;gap:8px;font-family:var(--mono);font-size:0.9rem;
-  }
-  .countdown span{
-    background:var(--ink);color:var(--paper);padding:8px 12px;min-width:48px;text-align:center;
-  }
-  .flash-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:0;
-    border-top:2px solid var(--ink);
-    border-left:2px solid var(--ink);
-  }
+
+
+  /* Shelf sections */
+  .shelf{padding:36px 5vw 12px;}
+  .shelf + .shelf{padding-top:12px;}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+  .section-title{font-family:var(--display);font-size:clamp(1.35rem,2.8vw,1.9rem);text-transform:uppercase;}
+  .section-title .hl{color:var(--orange);}
+  .section-note{font-family:var(--mono);font-size:0.74rem;color:var(--ink-soft);text-transform:uppercase;}
+  .flash-header{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:20px;}
+  .countdown{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:0.9rem;font-weight:600;}
+  .countdown span{background:var(--ink);color:var(--paper);padding:7px 11px;min-width:44px;text-align:center;}
+  .shelf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:2px solid var(--ink);border-left:2px solid var(--ink);}
+  .shelf-empty{padding:28px;font-family:var(--mono);font-size:0.8rem;color:var(--ink-soft);border:2px solid var(--ink);border-top:none;}
+  .all-products-label{padding:28px 5vw 0;font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;color:var(--steel);}
 
   @media (max-width:880px){
     .nav-links{display:none;}
+    .shelf-grid{
+      display:flex;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+      scroll-snap-type:x mandatory;border-top:2px solid var(--ink);border-left:none;border-bottom:2px solid var(--ink);gap:0;
+    }
+    .shelf-grid .item-card{
+      flex:0 0 46%;max-width:220px;min-width:160px;border-left:2px solid var(--ink);
+      border-right:none;border-bottom:none;scroll-snap-align:start;
+    }
+
     .item-grid{
       display:flex;
       flex-wrap:nowrap;
@@ -129,13 +139,13 @@
     footer{flex-direction:column;gap:8px;text-align:center;}
   }
   @media (max-width:520px){
+    .shelf-grid .item-card{flex:0 0 42%;max-width:170px;min-width:140px;}
+
     .item-card{flex:0 0 42%;max-width:170px;min-width:140px;}
     .item-body{padding:8px 10px;}
     .item-name{font-size:0.72rem;}
     .add-btn{width:100%;text-align:center;}
   }
-
-  
 
 </style>
 </head>
@@ -175,6 +185,38 @@
   <h1>Laptops</h1>
 </div>
 
+
+<section class="shelf" id="flash">
+  <div class="flash-header">
+    <h2 class="section-title">Flash <span class="hl">Sales</span></h2>
+    <div class="countdown" id="countdown">
+      <span id="cd-h">00</span> :
+      <span id="cd-m">00</span> :
+      <span id="cd-s">00</span>
+    </div>
+    <div class="section-note">Limited stock · Ends soon</div>
+  </div>
+  <div class="shelf-grid" id="flash-grid"></div>
+</section>
+
+<section class="shelf" id="top-picks">
+  <div class="section-head">
+    <h2 class="section-title">Top <span class="hl">picks</span></h2>
+    <div class="section-note">Highest rated laptops</div>
+  </div>
+  <div class="shelf-grid" id="top-grid"></div>
+</section>
+
+<section class="shelf" id="low-budget">
+  <div class="section-head">
+    <h2 class="section-title">Low <span class="hl">budget</span></h2>
+    <div class="section-note">Under GHS 3,000</div>
+  </div>
+  <div class="shelf-grid" id="budget-grid"></div>
+</section>
+
+<div class="all-products-label">All laptops</div>
+
 <div class="filter-bar">
   <button class="filter-chip active" data-filter="all">All</button>
   <button class="filter-chip" data-filter="HP">HP</button>
@@ -191,20 +233,6 @@
   </select>
 </div>
 
-<!-- FLASH SALES 
-<section id="flash">
-  <div class="flash-header">
-    <h2 class="section-title">Flash <span class="hl">Sales</span></h2>
-    <div class="countdown" id="countdown">
-      <span id="cd-h">00</span> :
-      <span id="cd-m">00</span> :
-      <span id="cd-s">00</span>
-    </div>
-    <div class="section-note" style="margin-left:auto;">Limited stock · Ends soon</div>
-  </div>
-  <div class="flash-grid" id="flash-grid"></div>
-</section>-->
-
 <main>
   <div class="result-count" id="result-count"></div>
   <div class="item-grid" id="product-grid"></div>
@@ -218,6 +246,74 @@
 <script>
 function openSearch(){ document.getElementById("myOverlay").style.display = "block"; }
 function closeSearch(){ document.getElementById("myOverlay").style.display = "none"; }
+
+
+function productCardHTML(p) {
+  const disc = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+  return `
+    <div class="item-card">
+      <a href="product.html?id=${p.id}" class="item-img" style="background-image:url('${p.image}');display:block;">
+        ${p.badge ? `<div class="item-badge ${p.badge==='Flash Sale'?'flash':''}">${p.badge}</div>` : ""}
+        ${disc > 0 ? `<div class="discount-flag">-${disc}%</div>` : ""}
+      </a>
+      <div class="item-body">
+        <div class="item-brand">${p.brand}</div>
+        <a href="product.html?id=${p.id}" class="item-name">${p.name}</a>
+        <div class="item-spec">${p.specs}<br>${p.condition}</div>
+        <div class="item-rating"><span class="stars">★</span> ${p.rating} (${p.reviews})</div>
+        <div class="item-foot">
+          <div>
+            ${p.oldPrice ? `<div class="price-old">${CypherProducts.formatPrice(p.oldPrice)}</div>` : ""}
+            <div class="price-new">${CypherProducts.formatPrice(p.price)}</div>
+          </div>
+          <button class="add-btn" onclick="event.preventDefault();addToCart('${p.id}')">Add to Cart</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function fillShelf(elId, list) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  if (!list.length) {
+    el.innerHTML = '<div class="shelf-empty">No items in this section right now.</div>';
+    return;
+  }
+  el.innerHTML = list.map(productCardHTML).join("");
+}
+
+function startCountdown() {
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+  function tick() {
+    const now = new Date();
+    let diff = Math.max(0, end - now);
+    const h = Math.floor(diff / 3600000); diff -= h * 3600000;
+    const m = Math.floor(diff / 60000); diff -= m * 60000;
+    const s = Math.floor(diff / 1000);
+    const pad = n => String(n).padStart(2, "0");
+    const eh = document.getElementById("cd-h");
+    const em = document.getElementById("cd-m");
+    const es = document.getElementById("cd-s");
+    if (eh) eh.textContent = pad(h);
+    if (em) em.textContent = pad(m);
+    if (es) es.textContent = pad(s);
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+function renderShelves(category, budgetMax) {
+  const all = CypherProducts.getByCategory(category);
+  const flash = all.filter(p =>
+    p.badge === "Flash Sale" || (p.oldPrice && p.oldPrice > p.price)
+  ).slice(0, 8);
+  const top = all.slice().sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.reviews || 0) - (a.reviews || 0)).slice(0, 8);
+  const budget = all.filter(p => p.price <= budgetMax).sort((a, b) => a.price - b.price).slice(0, 8);
+  fillShelf("flash-grid", flash);
+  fillShelf("top-grid", top);
+  fillShelf("budget-grid", budget);
+}
 
 let currentFilter = "all";
 let currentSort = "default";
@@ -279,7 +375,11 @@ document.getElementById("sort").addEventListener("change", e => {
   render();
 });
 
-document.addEventListener("DOMContentLoaded", render);
+document.addEventListener("DOMContentLoaded", function () {
+  startCountdown();
+  renderShelves("laptops", 3000);
+  render();
+});
 </script>
 </body>
 </html>
