@@ -8,21 +8,18 @@
    across pages (see account-nav.js).
 
    IMPORTANT — before this goes to real customers:
-   - Passwords here are stored in plain text in the visitor's
-     own browser. That's fine for a local demo, but NOT fine
-     for production. Swap this out for a real auth backend
-     (Firebase Auth, Supabase, your own API, etc.) before launch.
-   - The hardcoded admin credentials below are placeholders.
-     Change them, or better, replace with real backend auth.
+   - Customer passwords are stored in plain text in the visitor's
+     browser (demo only). Swap for a real auth backend before launch.
+   - Admin login is verified server-side via Netlify Function
+     admin-login using env vars ADMIN_EMAIL and ADMIN_PASSWORD.
    ============================================================ */
 
 (function () {
   const USERS_KEY = "cypher_users";
   const SESSION_KEY = "cypher_session";
 
-  // Placeholder admin login until there's a real backend.
-  const ADMIN_EMAIL = "admin@cypheritsolutions.com";
-  const ADMIN_PASSWORD = "admin123";
+  // Admin credentials live in Netlify env (ADMIN_EMAIL, ADMIN_PASSWORD).
+  // Client only calls /.netlify/functions/admin-login — never stores the password in source.
 
   /* ---------- storage helpers ---------- */
 
@@ -157,32 +154,60 @@
       }
 
       if (role === "admin") {
-        if (
-          email.toLowerCase() === ADMIN_EMAIL.toLowerCase() &&
-          password === ADMIN_PASSWORD
-        ) {
-          setSession({
-            id: "admin",
-            firstName: "Admin",
-            lastName: "",
-            email: ADMIN_EMAIL,
-            role: "admin",
-          });
-          // Store password for Netlify admin API writes (session only)
-          try {
-            if (window.CypherAPI && window.CypherAPI.setAdminPassword) {
-              window.CypherAPI.setAdminPassword(password);
-            } else {
-              sessionStorage.setItem("cypher_admin_password", password);
+        const submitBtn = loginForm.querySelector(".submit-btn");
+        if (submitBtn) submitBtn.disabled = true;
+        showNotice(notice, "Checking admin credentials…", false);
+
+        fetch("/.netlify/functions/admin-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email, password: password }),
+        })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              return { ok: res.ok, status: res.status, data: data };
+            });
+          })
+          .then(function (result) {
+            if (submitBtn) submitBtn.disabled = false;
+            if (!result.ok || !result.data || !result.data.ok) {
+              showNotice(
+                notice,
+                (result.data && result.data.error) || "Incorrect admin email or password.",
+                true
+              );
+              return;
             }
-          } catch (e) {}
-          showNotice(notice, "Welcome back, Admin. Redirecting…", false);
-          setTimeout(() => {
-            window.location.href = "admin.html";
-          }, 700);
-        } else {
-          showNotice(notice, "Incorrect admin email or password.", true);
-        }
+            const user = result.data.user;
+            setSession({
+              id: user.id || "admin",
+              firstName: user.firstName || "Admin",
+              lastName: user.lastName || "",
+              email: user.email,
+              role: "admin",
+            });
+            // Keep password in session only — used as X-Admin-Password for product saves
+            try {
+              if (window.CypherAPI && window.CypherAPI.setAdminPassword) {
+                window.CypherAPI.setAdminPassword(password);
+              } else {
+                sessionStorage.setItem("cypher_admin_password", password);
+              }
+            } catch (e) {}
+            showNotice(notice, "Welcome back, Admin. Redirecting…", false);
+            setTimeout(function () {
+              window.location.href = "admin.html";
+            }, 700);
+          })
+          .catch(function (err) {
+            if (submitBtn) submitBtn.disabled = false;
+            showNotice(
+              notice,
+              "Could not reach login server. Check Netlify Functions are deployed.",
+              true
+            );
+            console.error(err);
+          });
         return;
       }
 

@@ -21,7 +21,8 @@ function json(statusCode, body) {
 }
 
 function checkAdmin(event) {
-  const expected = process.env.ADMIN_PASSWORD || "admin123";
+  const expected = process.env.ADMIN_PASSWORD || "";
+  if (!expected) return false;
   const got =
     event.headers["x-admin-password"] ||
     event.headers["X-Admin-Password"] ||
