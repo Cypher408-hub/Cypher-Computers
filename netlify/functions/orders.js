@@ -31,6 +31,27 @@ function checkAdmin(event) {
 }
 
 function openStore() {
+  // SITE_ID is reserved by Netlify — use BLOBS_SITE_ID (paste Site ID value there)
+  const siteID =
+    process.env.BLOBS_SITE_ID ||
+    process.env.NETLIFY_SITE_ID ||
+    process.env.SITE_ID ||
+    "";
+  const token =
+    process.env.NETLIFY_BLOBS_TOKEN ||
+    process.env.NETLIFY_AUTH_TOKEN ||
+    process.env.BLOBS_TOKEN ||
+    "";
+
+  if (siteID && token) {
+    return getStore({
+      name: STORE_NAME,
+      siteID: siteID,
+      token: token,
+      consistency: "strong",
+    });
+  }
+
   try {
     return getStore({ name: STORE_NAME, consistency: "strong" });
   } catch (e1) {
@@ -38,8 +59,7 @@ function openStore() {
       return getStore(STORE_NAME);
     } catch (e2) {
       throw new Error(
-        "Netlify Blobs not available: " +
-          [e1 && e1.message, e2 && e2.message].filter(Boolean).join(" | ")
+        "Blobs not configured. Set BLOBS_SITE_ID and NETLIFY_BLOBS_TOKEN in Netlify env vars, then redeploy."
       );
     }
   }
@@ -54,9 +74,7 @@ exports.handler = async (event) => {
   try {
     store = openStore();
   } catch (err) {
-    return json(500, {
-      error: String(err && err.message ? err.message : err),
-    });
+    return json(500, { error: String(err && err.message ? err.message : err) });
   }
 
   try {
@@ -64,11 +82,17 @@ exports.handler = async (event) => {
       if (!checkAdmin(event)) {
         return json(401, { error: "Unauthorized" });
       }
-      let orders = await store.get(ORDERS_KEY, { type: "json" });
-      if (orders == null) {
+      let orders = null;
+      try {
+        orders = await store.get(ORDERS_KEY, { type: "json" });
+      } catch (e) {
+        orders = null;
+      }
+      if (!Array.isArray(orders)) {
         const raw = await store.get(ORDERS_KEY);
-        if (!raw) return json(200, { orders: [] });
-        orders = typeof raw === "string" ? JSON.parse(raw) : raw;
+        if (raw) {
+          orders = typeof raw === "string" ? JSON.parse(raw) : raw;
+        }
       }
       return json(200, { orders: Array.isArray(orders) ? orders : [] });
     }
@@ -84,7 +108,12 @@ exports.handler = async (event) => {
         return json(400, { error: "Order must include id" });
       }
 
-      let orders = await store.get(ORDERS_KEY, { type: "json" });
+      let orders = null;
+      try {
+        orders = await store.get(ORDERS_KEY, { type: "json" });
+      } catch (e) {
+        orders = null;
+      }
       if (!Array.isArray(orders)) {
         const raw = await store.get(ORDERS_KEY);
         if (raw) {
@@ -100,8 +129,6 @@ exports.handler = async (event) => {
 
     return json(405, { error: "Method not allowed" });
   } catch (err) {
-    return json(500, {
-      error: String(err && err.message ? err.message : err),
-    });
+    return json(500, { error: String(err && err.message ? err.message : err) });
   }
 };
