@@ -81,6 +81,26 @@
     .auth-body{padding:34px 26px;}
     .field-row{grid-template-columns:1fr;}
   }
+
+  .auth-divider{
+    display:flex;align-items:center;gap:12px;margin:22px 0 16px;
+    font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;color:var(--ink-soft);
+  }
+  .auth-divider::before,.auth-divider::after{
+    content:'';flex:1;height:1px;background:var(--line-soft,rgba(26,27,23,0.18));
+  }
+  .btn-oauth{
+    width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+    font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;
+    border:2px solid var(--ink);background:var(--paper);color:var(--ink);
+    padding:12px 16px;cursor:pointer;margin-bottom:10px;
+  }
+  .btn-oauth:hover{background:var(--ink);color:var(--paper);}
+  .btn-oauth.google:hover{background:#fff;color:#1A1B17;border-color:#4285F4;color:#1A1B17;}
+  #phone-auth-panel{display:none;margin-top:8px;}
+  #phone-auth-panel.open{display:block;}
+  .customer-only-social.hidden{display:none !important;}
+
 </style>
 </head>
 <body>
@@ -134,6 +154,27 @@
         </label>
         <button type="submit" class="submit-btn">Create Account</button>
       </form>
+
+
+      <div class="auth-divider">or</div>
+      <button type="button" class="btn-oauth google" id="btn-google-signup">
+        <i class="fa fa-google"></i> Sign up with Google
+      </button>
+      <button type="button" class="btn-oauth" id="btn-phone-toggle-signup">
+        <i class="fa fa-whatsapp"></i> Sign up with phone
+      </button>
+      <div id="phone-auth-panel-signup" style="display:none;margin-top:8px;">
+        <div class="field">
+          <label for="phone-signup-otp">Phone (with country code)</label>
+          <input type="tel" id="phone-signup-otp" placeholder="+23320XXXXXXX">
+        </div>
+        <div class="field" id="otp-field-signup" style="display:none;">
+          <label for="otp-code-signup">SMS code</label>
+          <input type="text" id="otp-code-signup" placeholder="6-digit code" inputmode="numeric">
+        </div>
+        <button type="button" class="submit-btn" id="btn-phone-send-signup" style="margin-top:8px;">Send code</button>
+        <button type="button" class="submit-btn" id="btn-phone-verify-signup" style="margin-top:8px;display:none;">Verify & create account</button>
+      </div>
 
       <div class="auth-switch">
         Already have an account? <a href="login.html">Log in</a>

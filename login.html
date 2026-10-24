@@ -87,6 +87,26 @@
   @media (max-width:500px){
     .auth-body{padding:34px 26px;}
   }
+
+  .auth-divider{
+    display:flex;align-items:center;gap:12px;margin:22px 0 16px;
+    font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;color:var(--ink-soft);
+  }
+  .auth-divider::before,.auth-divider::after{
+    content:'';flex:1;height:1px;background:var(--line-soft,rgba(26,27,23,0.18));
+  }
+  .btn-oauth{
+    width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+    font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;
+    border:2px solid var(--ink);background:var(--paper);color:var(--ink);
+    padding:12px 16px;cursor:pointer;margin-bottom:10px;
+  }
+  .btn-oauth:hover{background:var(--ink);color:var(--paper);}
+  .btn-oauth.google:hover{background:#fff;color:#1A1B17;border-color:#4285F4;color:#1A1B17;}
+  #phone-auth-panel{display:none;margin-top:8px;}
+  #phone-auth-panel.open{display:block;}
+  .customer-only-social.hidden{display:none !important;}
+
 </style>
 </head>
 <body>
@@ -133,13 +153,34 @@
         <button type="submit" class="submit-btn">Log In</button>
       </form>
 
+
+      <div class="customer-only-social" id="customer-social">
+        <div class="auth-divider">or</div>
+        <button type="button" class="btn-oauth google" id="btn-google">
+          <i class="fa fa-google"></i> Continue with Google
+        </button>
+        <button type="button" class="btn-oauth" id="btn-phone-toggle">
+          <i class="fa fa-whatsapp"></i> Continue with phone
+        </button>
+        <div id="phone-auth-panel">
+          <div class="field">
+            <label for="phone-login">Phone (with country code)</label>
+            <input type="tel" id="phone-login" placeholder="+23320XXXXXXX">
+          </div>
+          <div class="field" id="otp-field" style="display:none;">
+            <label for="otp-code">SMS code</label>
+            <input type="text" id="otp-code" placeholder="6-digit code" inputmode="numeric">
+          </div>
+          <button type="button" class="submit-btn" id="btn-phone-send" style="margin-top:8px;">Send code</button>
+          <button type="button" class="submit-btn" id="btn-phone-verify" style="margin-top:8px;display:none;">Verify & log in</button>
+        </div>
+      </div>
+
       <div class="auth-switch" id="auth-switch">
         No account yet? <a href="signup.html">Sign up</a>
       </div>
 
-      <div class="notice" id="notice">
-        Your account is stored securely for this static website session. For a production site, connect this flow to a real server-side authentication service.
-      </div>
+      <div class="notice" id="notice"></div>
     </div>
   </div>
 </main>
@@ -155,14 +196,17 @@
     tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     const role = tab.dataset.role;
+    var social = document.getElementById('customer-social');
     if (role === 'admin') {
       title.textContent = 'Admin Login';
       sub.textContent = 'Manage stock, prices, photos and specs for the shop.';
       switchLine.style.display = 'none';
+      if (social) social.classList.add('hidden');
     } else {
       title.textContent = 'Customer Login';
       sub.textContent = 'Log in to track your repair status and past orders.';
       switchLine.style.display = 'block';
+      if (social) social.classList.remove('hidden');
     }
   }));
 </script>

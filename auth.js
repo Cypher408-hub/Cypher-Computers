@@ -354,4 +354,176 @@
       }, 700);
     });
   }
+
+
+  /* ---------- Google + Phone (Supabase) ---------- */
+
+  function requireSupabase(noticeEl) {
+    if (!hasSupabase()) {
+      showNotice(
+        noticeEl,
+        "Connect Supabase in config.js first (URL + publishable key).",
+        true
+      );
+      return false;
+    }
+    return true;
+  }
+
+  function normalizePhone(raw) {
+    var p = String(raw || "").replace(/[\s\-()]/g, "");
+    if (p.charAt(0) === "0") p = "+233" + p.slice(1);
+    if (p.charAt(0) !== "+") p = "+" + p.replace(/^\+/, "");
+    return p;
+  }
+
+  function startGoogle() {
+    var noticeEl = document.getElementById("notice");
+    if (!requireSupabase(noticeEl)) return;
+    showNotice(noticeEl, "Redirecting to Google…", false);
+    getSb()
+      .auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin + "/index.html?welcome=1",
+          queryParams: { access_type: "offline", prompt: "consent" },
+        },
+      })
+      .then(function (result) {
+        if (result.error) {
+          showNotice(noticeEl, result.error.message || "Google sign-in failed.", true);
+        }
+      })
+      .catch(function (err) {
+        showNotice(noticeEl, err.message || "Google sign-in failed.", true);
+      });
+  }
+
+  function wirePhoneFlow(opts) {
+    var toggle = document.getElementById(opts.toggleId);
+    var panel = document.getElementById(opts.panelId);
+    var sendBtn = document.getElementById(opts.sendId);
+    var verifyBtn = document.getElementById(opts.verifyId);
+    var phoneInput = document.getElementById(opts.phoneId);
+    var otpField = document.getElementById(opts.otpFieldId);
+    var otpInput = document.getElementById(opts.otpId);
+    var noticeEl = document.getElementById("notice");
+    if (!toggle || !panel) return;
+
+    toggle.addEventListener("click", function () {
+      var open = panel.style.display === "block" || panel.classList.contains("open");
+      if (panel.classList.contains("open") !== undefined && panel.id.indexOf("panel") !== -1) {
+        panel.classList.toggle("open");
+      }
+      panel.style.display = open ? "none" : "block";
+    });
+
+    if (sendBtn) {
+      sendBtn.addEventListener("click", function () {
+        if (!requireSupabase(noticeEl)) return;
+        var phone = normalizePhone(phoneInput && phoneInput.value);
+        if (phone.length < 10) {
+          showNotice(noticeEl, "Enter a valid phone with country code, e.g. +23320XXXXXXX", true);
+          return;
+        }
+        sendBtn.disabled = true;
+        showNotice(noticeEl, "Sending SMS code…", false);
+        getSb()
+          .auth.signInWithOtp({ phone: phone })
+          .then(function (result) {
+            sendBtn.disabled = false;
+            if (result.error) {
+              showNotice(
+                noticeEl,
+                result.error.message ||
+                  "SMS failed. Enable Phone provider in Supabase and add an SMS gateway.",
+                true
+              );
+              return;
+            }
+            if (otpField) otpField.style.display = "block";
+            if (verifyBtn) verifyBtn.style.display = "block";
+            sendBtn.textContent = "Resend code";
+            showNotice(noticeEl, "Code sent. Check your SMS.", false);
+          })
+          .catch(function (err) {
+            sendBtn.disabled = false;
+            showNotice(noticeEl, err.message || "Could not send SMS.", true);
+          });
+      });
+    }
+
+    if (verifyBtn) {
+      verifyBtn.addEventListener("click", function () {
+        if (!requireSupabase(noticeEl)) return;
+        var phone = normalizePhone(phoneInput && phoneInput.value);
+        var token = (otpInput && otpInput.value.trim()) || "";
+        if (!token) {
+          showNotice(noticeEl, "Enter the SMS code.", true);
+          return;
+        }
+        verifyBtn.disabled = true;
+        showNotice(noticeEl, "Verifying…", false);
+        getSb()
+          .auth.verifyOtp({ phone: phone, token: token, type: "sms" })
+          .then(function (result) {
+            verifyBtn.disabled = false;
+            if (result.error) {
+              showNotice(noticeEl, result.error.message || "Invalid code.", true);
+              return;
+            }
+            var user = result.data && result.data.user;
+            setLocalSession(sessionFromUser(user, "customer"));
+            showNotice(noticeEl, "You're signed in. Redirecting…", false);
+            setTimeout(function () {
+              window.location.href = "index.html?welcome=1";
+            }, 700);
+          })
+          .catch(function (err) {
+            verifyBtn.disabled = false;
+            showNotice(noticeEl, err.message || "Verification failed.", true);
+          });
+      });
+    }
+  }
+
+  // Buttons on login
+  var gBtn = document.getElementById("btn-google");
+  if (gBtn) gBtn.addEventListener("click", startGoogle);
+  var gBtnSu = document.getElementById("btn-google-signup");
+  if (gBtnSu) gBtnSu.addEventListener("click", startGoogle);
+
+  wirePhoneFlow({
+    toggleId: "btn-phone-toggle",
+    panelId: "phone-auth-panel",
+    sendId: "btn-phone-send",
+    verifyId: "btn-phone-verify",
+    phoneId: "phone-login",
+    otpFieldId: "otp-field",
+    otpId: "otp-code",
+  });
+
+  wirePhoneFlow({
+    toggleId: "btn-phone-toggle-signup",
+    panelId: "phone-auth-panel-signup",
+    sendId: "btn-phone-send-signup",
+    verifyId: "btn-phone-verify-signup",
+    phoneId: "phone-signup-otp",
+    otpFieldId: "otp-field-signup",
+    otpId: "otp-code-signup",
+  });
+
+  // Recover session after OAuth redirect
+  if (hasSupabase()) {
+    getSb()
+      .auth.getSession()
+      .then(function (res) {
+        var session = res.data && res.data.session;
+        if (session && session.user) {
+          setLocalSession(sessionFromUser(session.user, "customer"));
+        }
+      })
+      .catch(function () {});
+  }
+
 })();
