@@ -5,13 +5,12 @@
   var STORAGE_KEY = "cypher_theme";
 
   function getPreferred() {
+    // Default is always light for first-time visitors.
+    // Only switch to dark if the user chose it before (saved in this browser).
     try {
       var saved = localStorage.getItem(STORAGE_KEY);
       if (saved === "dark" || saved === "light") return saved;
     } catch (e) {}
-    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      return "dark";
-    }
     return "light";
   }
 
