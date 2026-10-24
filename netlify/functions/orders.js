@@ -29,6 +29,21 @@ function checkAdmin(event) {
   return got && got === expected;
 }
 
+function openStore() {
+  try {
+    return getStore({ name: STORE_NAME, consistency: "strong" });
+  } catch (e1) {
+    try {
+      return getStore(STORE_NAME);
+    } catch (e2) {
+      throw new Error(
+        "Netlify Blobs not available: " +
+          [e1 && e1.message, e2 && e2.message].filter(Boolean).join(" | ")
+      );
+    }
+  }
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers: corsHeaders(), body: "" };
@@ -36,11 +51,10 @@ exports.handler = async (event) => {
 
   let store;
   try {
-    store = getStore(STORE_NAME);
+    store = openStore();
   } catch (err) {
     return json(500, {
-      error: "Storage unavailable",
-      detail: String(err && err.message ? err.message : err),
+      error: String(err && err.message ? err.message : err),
     });
   }
 
@@ -49,9 +63,12 @@ exports.handler = async (event) => {
       if (!checkAdmin(event)) {
         return json(401, { error: "Unauthorized" });
       }
-      const raw = await store.get(ORDERS_KEY);
-      if (!raw) return json(200, { orders: [] });
-      const orders = typeof raw === "string" ? JSON.parse(raw) : raw;
+      let orders = await store.get(ORDERS_KEY, { type: "json" });
+      if (orders == null) {
+        const raw = await store.get(ORDERS_KEY);
+        if (!raw) return json(200, { orders: [] });
+        orders = typeof raw === "string" ? JSON.parse(raw) : raw;
+      }
       return json(200, { orders: Array.isArray(orders) ? orders : [] });
     }
 
@@ -65,14 +82,16 @@ exports.handler = async (event) => {
       if (!order || !order.id) {
         return json(400, { error: "Order must include id" });
       }
-      const raw = await store.get(ORDERS_KEY);
-      let orders = [];
-      if (raw) {
-        orders = typeof raw === "string" ? JSON.parse(raw) : raw;
-        if (!Array.isArray(orders)) orders = [];
+
+      let orders = await store.get(ORDERS_KEY, { type: "json" });
+      if (!Array.isArray(orders)) {
+        const raw = await store.get(ORDERS_KEY);
+        if (raw) {
+          orders = typeof raw === "string" ? JSON.parse(raw) : raw;
+        }
       }
+      if (!Array.isArray(orders)) orders = [];
       orders.push(order);
-      // keep last 200 orders
       if (orders.length > 200) orders = orders.slice(-200);
       await store.setJSON(ORDERS_KEY, orders);
       return json(200, { ok: true, id: order.id });
@@ -81,8 +100,7 @@ exports.handler = async (event) => {
     return json(405, { error: "Method not allowed" });
   } catch (err) {
     return json(500, {
-      error: "Server error",
-      detail: String(err && err.message ? err.message : err),
+      error: String(err && err.message ? err.message : err),
     });
   }
 };

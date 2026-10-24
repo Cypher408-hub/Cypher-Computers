@@ -29,6 +29,25 @@ function checkAdmin(event) {
   return got && got === expected;
 }
 
+function openStore() {
+  // GitHub → Netlify deploys provide Blobs context automatically
+  try {
+    return getStore({ name: STORE_NAME, consistency: "strong" });
+  } catch (e1) {
+    try {
+      return getStore(STORE_NAME);
+    } catch (e2) {
+      const msg = [e1 && e1.message, e2 && e2.message].filter(Boolean).join(" | ");
+      const err = new Error(
+        "Netlify Blobs not available: " +
+          msg +
+          ". Confirm this site is linked to GitHub and Functions deploy succeeded."
+      );
+      throw err;
+    }
+  }
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers: corsHeaders(), body: "" };
@@ -36,22 +55,30 @@ exports.handler = async (event) => {
 
   let store;
   try {
-    store = getStore(STORE_NAME);
+    store = openStore();
   } catch (err) {
     return json(500, {
-      error: "Storage unavailable. Deploy on Netlify with Blobs enabled.",
-      detail: String(err && err.message ? err.message : err),
+      error: String(err && err.message ? err.message : err),
     });
   }
 
   try {
     if (event.httpMethod === "GET") {
-      const raw = await store.get(PRODUCTS_KEY);
-      if (!raw) {
-        return json(200, { products: null, source: "empty" });
+      const raw = await store.get(PRODUCTS_KEY, { type: "json" });
+      if (raw == null) {
+        // try string parse fallback
+        const asText = await store.get(PRODUCTS_KEY);
+        if (!asText) return json(200, { products: null, source: "empty" });
+        const parsed = typeof asText === "string" ? JSON.parse(asText) : asText;
+        return json(200, {
+          products: Array.isArray(parsed) ? parsed : null,
+          source: "blob",
+        });
       }
-      const products = typeof raw === "string" ? JSON.parse(raw) : raw;
-      return json(200, { products, source: "blob" });
+      return json(200, {
+        products: Array.isArray(raw) ? raw : null,
+        source: "blob",
+      });
     }
 
     if (event.httpMethod === "PUT") {
@@ -68,14 +95,13 @@ exports.handler = async (event) => {
         return json(400, { error: "Body must include products: []" });
       }
       await store.setJSON(PRODUCTS_KEY, payload.products);
-      return json(200, { ok: true, count: payload.products.length });
+      return json(200, { ok: true, count: payload.products.length, source: "blob" });
     }
 
     return json(405, { error: "Method not allowed" });
   } catch (err) {
     return json(500, {
-      error: "Server error",
-      detail: String(err && err.message ? err.message : err),
+      error: String(err && err.message ? err.message : err),
     });
   }
 };
