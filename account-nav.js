@@ -63,30 +63,12 @@
   }
 
   function showWelcome(session) {
+    // Welcome banner removed — name is shown in the nav account menu only.
     try {
       var params = new URLSearchParams(window.location.search);
-      if (params.get("welcome") !== "1") return;
-    } catch (e) {
-      return;
-    }
-    if (document.getElementById("welcome-banner")) return;
-    var bar = document.createElement("div");
-    bar.id = "welcome-banner";
-    var name = session.firstName || "there";
-    bar.innerHTML =
-      "Signed in as <strong>" +
-      escapeHtml(name) +
-      "</strong> — your account is ready on this device.";
-    var nav = document.querySelector("nav");
-    if (nav && nav.parentNode) {
-      nav.parentNode.insertBefore(bar, nav.nextSibling);
-    } else {
-      document.body.insertBefore(bar, document.body.firstChild);
-    }
-    // clean URL without reload
-    try {
-      var url = window.location.pathname + window.location.hash;
-      window.history.replaceState({}, "", url);
+      if (params.get("welcome") === "1") {
+        window.history.replaceState({}, "", window.location.pathname + window.location.hash);
+      }
     } catch (e) {}
   }
 
