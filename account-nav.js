@@ -174,22 +174,57 @@
     });
   }
 
-  function run() {
-    var session = getSession();
+  function runWithSession(session) {
     if (!session) return;
+    if (document.querySelector(".acct-menu")) return; // already mounted
     injectStyles();
     showWelcome(session);
     mountAccountMenu(session);
-    // mobile drawer may mount slightly later
     updateMobileDrawer(session);
     setTimeout(function () {
       updateMobileDrawer(session);
-    }, 300);
+    }, 400);
   }
 
+  function run() {
+    // Prefer live Supabase session when available
+    if (window.CypherAuth && window.CypherAuth.getSession) {
+      window.CypherAuth.getSession().then(function (session) {
+        runWithSession(session || getSession());
+      });
+      return;
+    }
+    runWithSession(getSession());
+  }
+
+  function start() {
+    if (window.__cypherAuthReady) {
+      run();
+    } else {
+      // local demo session can show immediately
+      var local = getSession();
+      if (local) runWithSession(local);
+      window.addEventListener("cypher:auth-ready", function () {
+        run();
+      }, { once: true });
+      // fallback if auth.js missing
+      setTimeout(run, 1200);
+    }
+  }
+
+  window.addEventListener("cypher:auth", function (e) {
+    var session = e.detail && e.detail.session;
+    if (session) {
+      // remount if needed
+      var existing = document.querySelector(".acct-menu");
+      if (existing) existing.remove();
+      runWithSession(session);
+    }
+  });
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", run);
+    document.addEventListener("DOMContentLoaded", start);
   } else {
-    run();
+    start();
   }
 })();

@@ -21,7 +21,31 @@
   function getSb() {
     if (sbClient) return sbClient;
     if (!hasSupabase()) return null;
-    sbClient = window.supabase.createClient(cfg().supabaseUrl, cfg().supabaseAnonKey);
+    sbClient = window.supabase.createClient(cfg().supabaseUrl, cfg().supabaseAnonKey, {
+      auth: {
+        detectSessionInUrl: true,
+        persistSession: true,
+        autoRefreshToken: true,
+        flowType: "pkce",
+        storage: window.localStorage,
+      },
+    });
+    // Keep cypher_session mirror in sync for the nav
+    sbClient.auth.onAuthStateChange(function (event, session) {
+      try {
+        if (session && session.user) {
+          setLocalSession(sessionFromUser(session.user, "customer"));
+          window.dispatchEvent(
+            new CustomEvent("cypher:auth", { detail: { event: event, session: sessionFromUser(session.user, "customer") } })
+          );
+        } else if (event === "SIGNED_OUT") {
+          var local = getLocalSession();
+          if (local && local.role === "admin") return;
+          clearLocalSession();
+          window.dispatchEvent(new CustomEvent("cypher:auth", { detail: { event: event, session: null } }));
+        }
+      } catch (e) {}
+    });
     return sbClient;
   }
 
@@ -513,17 +537,57 @@
     otpId: "otp-code-signup",
   });
 
-  // Recover session after OAuth redirect
-  if (hasSupabase()) {
-    getSb()
-      .auth.getSession()
-      .then(function (res) {
-        var session = res.data && res.data.session;
+  // Recover session after OAuth / email redirect (runs on every page with auth.js)
+  function bootstrapAuth() {
+    if (!hasSupabase()) {
+      window.__cypherAuthReady = true;
+      window.dispatchEvent(new CustomEvent("cypher:auth-ready"));
+      return;
+    }
+    var client = getSb();
+    // PKCE: ?code=... in URL after Google redirect
+    var params = new URLSearchParams(window.location.search);
+    var code = params.get("code");
+    var chain = Promise.resolve();
+    if (code) {
+      chain = client.auth.exchangeCodeForSession(code).then(function (result) {
+        if (result.error) {
+          console.warn("exchangeCodeForSession", result.error.message);
+          return null;
+        }
+        return result.data && result.data.session;
+      });
+    } else {
+      chain = client.auth.getSession().then(function (res) {
+        return res.data && res.data.session;
+      });
+    }
+    chain
+      .then(function (session) {
         if (session && session.user) {
           setLocalSession(sessionFromUser(session.user, "customer"));
+          // Clean OAuth params from URL without reload
+          try {
+            if (code || params.get("welcome")) {
+              var clean = window.location.pathname + (params.get("welcome") ? "?welcome=1" : "");
+              window.history.replaceState({}, "", clean + window.location.hash.replace(/access_token[^&]*/g, ""));
+            }
+          } catch (e) {}
         }
       })
-      .catch(function () {});
+      .catch(function (err) {
+        console.warn("bootstrapAuth", err);
+      })
+      .finally(function () {
+        window.__cypherAuthReady = true;
+        window.dispatchEvent(new CustomEvent("cypher:auth-ready"));
+      });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootstrapAuth);
+  } else {
+    bootstrapAuth();
   }
 
 })();
