@@ -161,10 +161,13 @@
       menu.classList.toggle("open");
     });
     menu.querySelector(".acct-logout").addEventListener("click", function () {
-      try {
-        localStorage.removeItem("cypher_session");
-      } catch (e) {}
-      window.location.href = "index.html";
+      var done = function () { window.location.href = "index.html"; };
+      if (window.CypherAuth && window.CypherAuth.clearSession) {
+        Promise.resolve(window.CypherAuth.clearSession()).then(done).catch(done);
+      } else {
+        try { localStorage.removeItem("cypher_session"); } catch (e) {}
+        done();
+      }
     });
     document.addEventListener("click", function (e) {
       if (!menu.contains(e.target)) menu.classList.remove("open");
