@@ -98,13 +98,31 @@
   function sessionFromUser(user, role) {
     if (!user) return null;
     var meta = user.user_metadata || {};
+    // Google often sends full_name / name / given_name
+    var first =
+      meta.first_name ||
+      meta.firstName ||
+      meta.given_name ||
+      (meta.full_name || meta.name || "").split(" ")[0] ||
+      (user.email || "").split("@")[0] ||
+      "there";
+    var last =
+      meta.last_name ||
+      meta.lastName ||
+      meta.family_name ||
+      (function () {
+        var full = meta.full_name || meta.name || "";
+        var parts = full.trim().split(/\s+/);
+        return parts.length > 1 ? parts.slice(1).join(" ") : "";
+      })();
     return {
       id: user.id,
-      firstName: meta.first_name || meta.firstName || (user.email || "").split("@")[0],
-      lastName: meta.last_name || meta.lastName || "",
+      firstName: first,
+      lastName: last,
       email: user.email,
       phone: meta.phone || "",
       role: role || "customer",
+      avatar: meta.avatar_url || meta.picture || "",
     };
   }
 
