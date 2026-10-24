@@ -41,19 +41,29 @@
   }
 
   function setSession(session) {
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    try {
+      localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      return true;
+    } catch (e) {
+      console.error("setSession failed", e);
+      return false;
+    }
   }
 
   function getSession() {
     try {
-      return JSON.parse(localStorage.getItem(SESSION_KEY));
+      var raw = localStorage.getItem(SESSION_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
     } catch (e) {
       return null;
     }
   }
 
   function clearSession() {
-    localStorage.removeItem(SESSION_KEY);
+    try {
+      localStorage.removeItem(SESSION_KEY);
+    } catch (e) {}
   }
 
   // Exposed so account-nav.js (and the console, for debugging) can use them.
@@ -118,18 +128,27 @@
       users.push(user);
       saveUsers(users);
 
-      setSession({
+      var ok = setSession({
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
         role: "customer",
       });
+      if (!ok) {
+        showNotice(
+          notice,
+          "Could not save your account on this device. Turn off private browsing and try again.",
+          true
+        );
+        return;
+      }
 
-      showNotice(notice, `Account created — welcome, ${escapeHtml(fname)}! Redirecting…`, false);
-      signupForm.querySelector(".submit-btn").disabled = true;
-      setTimeout(() => {
-        window.location.href = "index.html";
+      showNotice(notice, "Account created — welcome, " + escapeHtml(fname) + "! Taking you to the shop…", false);
+      var btn = signupForm.querySelector(".submit-btn");
+      if (btn) btn.disabled = true;
+      setTimeout(function () {
+        window.location.href = "index.html?welcome=1";
       }, 900);
     });
   }
@@ -222,16 +241,20 @@
         return;
       }
 
-      setSession({
+      var okLogin = setSession({
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
         role: "customer",
       });
-      showNotice(notice, `Welcome back, ${escapeHtml(user.firstName)}! Redirecting…`, false);
-      setTimeout(() => {
-        window.location.href = "index.html";
+      if (!okLogin) {
+        showNotice(notice, "Could not save login on this device. Try without private browsing.", true);
+        return;
+      }
+      showNotice(notice, "Welcome back, " + escapeHtml(user.firstName) + "! Taking you to the shop…", false);
+      setTimeout(function () {
+        window.location.href = "index.html?welcome=1";
       }, 700);
     });
   }
