@@ -1,9 +1,6 @@
 {
   "name": "cypher-it-solutions",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "Cypher IT Solutions storefront + admin API for Netlify",
-  "dependencies": {
-    "@netlify/blobs": "^8.1.0"
-  }
+  "description": "Cypher IT Solutions — Cloudflare Pages + Supabase"
 }

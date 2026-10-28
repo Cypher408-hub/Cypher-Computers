@@ -1,10 +1,12 @@
 /* ============================================================
-   Cypher IT Solutions — API client (Netlify Functions + local fallback)
+   Cypher IT Solutions — API client
+   Cloudflare Pages Functions + Supabase storage
+   (falls back gracefully if API is offline)
    ============================================================ */
 (function () {
-  const PRODUCTS_URL = "/.netlify/functions/products";
-  const ORDERS_URL = "/.netlify/functions/orders";
-  const ADMIN_PASS_KEY = "cypher_admin_password";
+  var PRODUCTS_URL = "/api/products";
+  var ORDERS_URL = "/api/orders";
+  var ADMIN_PASS_KEY = "cypher_admin_password";
 
   function getAdminPassword() {
     try {
@@ -22,16 +24,16 @@
   }
 
   async function fetchJSON(url, options) {
-    const res = await fetch(url, options);
-    let data = null;
+    var res = await fetch(url, options);
+    var data = null;
     try {
       data = await res.json();
     } catch (e) {
       data = null;
     }
     if (!res.ok) {
-      const msg = (data && data.error) || res.statusText || "Request failed";
-      const err = new Error(msg);
+      var msg = (data && data.error) || res.statusText || "Request failed";
+      var err = new Error(msg);
       err.status = res.status;
       err.data = data;
       throw err;
@@ -43,10 +45,9 @@
     setAdminPassword: setAdminPassword,
     getAdminPassword: getAdminPassword,
 
-    /** Load products from Netlify. Returns array or null if empty/unavailable. */
     loadProducts: async function () {
       try {
-        const data = await fetchJSON(PRODUCTS_URL);
+        var data = await fetchJSON(PRODUCTS_URL);
         if (data && Array.isArray(data.products) && data.products.length) {
           return data.products;
         }
@@ -57,9 +58,8 @@
       }
     },
 
-    /** Save full product list (admin). */
     saveProducts: async function (products) {
-      const password = getAdminPassword();
+      var password = getAdminPassword();
       if (!password) {
         throw new Error("Admin password missing. Log in again as admin.");
       }
@@ -73,7 +73,6 @@
       });
     },
 
-    /** Place order (customer). */
     submitOrder: async function (order) {
       try {
         return await fetchJSON(ORDERS_URL, {
@@ -82,9 +81,8 @@
           body: JSON.stringify(order),
         });
       } catch (e) {
-        // fallback local so demo still works offline
         try {
-          const orders = JSON.parse(localStorage.getItem("cypher_orders") || "[]");
+          var orders = JSON.parse(localStorage.getItem("cypher_orders") || "[]");
           orders.push(order);
           localStorage.setItem("cypher_orders", JSON.stringify(orders));
         } catch (e2) {}
@@ -92,11 +90,10 @@
       }
     },
 
-    /** List orders (admin). */
     loadOrders: async function () {
-      const password = getAdminPassword();
+      var password = getAdminPassword();
       try {
-        const data = await fetchJSON(ORDERS_URL, {
+        var data = await fetchJSON(ORDERS_URL, {
           headers: { "X-Admin-Password": password },
         });
         return (data && data.orders) || [];
