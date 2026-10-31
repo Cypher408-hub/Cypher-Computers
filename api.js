@@ -1,11 +1,11 @@
 /* ============================================================
    Cypher IT Solutions — API client
-   Cloudflare Pages Functions + Supabase storage
+   Netlify Functions + Blobs storage
    (falls back gracefully if API is offline)
    ============================================================ */
 (function () {
-  var PRODUCTS_URL = "/api/products";
-  var ORDERS_URL = "/api/orders";
+  var PRODUCTS_URL = "/.netlify/functions/products";
+  var ORDERS_URL = "/.netlify/functions/orders";
   var ADMIN_PASS_KEY = "cypher_admin_password";
 
   function getAdminPassword() {

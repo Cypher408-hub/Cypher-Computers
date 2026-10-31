@@ -2,7 +2,7 @@
    Cypher IT Solutions — Auth
    Real mode: Supabase (when config.supabaseUrl + key are set)
    Demo mode: localStorage (only if Supabase is not configured)
-   Admin: Cloudflare Function /api/admin-login
+   Admin: Netlify Function admin-login
    ============================================================ */
 
 (function () {
@@ -294,7 +294,7 @@
         var submitBtn = loginForm.querySelector(".submit-btn");
         if (submitBtn) submitBtn.disabled = true;
         showNotice(loginNotice, "Checking admin credentials…", false);
-        fetch("/api/admin-login", {
+        fetch("/.netlify/functions/admin-login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: email, password: password }),

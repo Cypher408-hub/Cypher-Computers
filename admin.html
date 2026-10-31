@@ -168,7 +168,7 @@
       <div class="stats" id="dash-stats"></div>
       <div class="note-box">
         <strong>Demo note</strong><br>
-        On Cloudflare, product changes are saved to the live catalog for all visitors. Log in as admin first so saves can authenticate. If the server is unavailable, changes stay on this device only.
+        On Netlify, product changes are saved to the live catalog for all visitors. Log in as admin first so saves can authenticate. If the server is unavailable, changes stay on this device only.
       </div>
       <h2 class="page-title" style="font-size:1.15rem;margin-bottom:14px;">Low stock</h2>
       <div id="low-stock-table"></div>
@@ -213,9 +213,9 @@
         <strong>Admin login</strong><br>
         Email: <code>admin@cypheritsolutions.com</code><br>
         
-        <strong>Cloudflare (live saves)</strong><br>
-        Pages → Settings → Environment variables:<br>
-        <code>ADMIN_PASSWORD</code>, <code>SUPABASE_URL</code>, <code>SUPABASE_SERVICE_ROLE_KEY</code><br>
+        <strong>Netlify (live saves)</strong><br>
+        Netlify → Site configuration → Environment variables:<br>
+        <code>ADMIN_PASSWORD</code>, <code>BLOBS_SITE_ID</code>, <code>NETLIFY_BLOBS_TOKEN</code><br>
         Redeploy after changing. Without these, product saves may only stay on this device.
       </div>
       <div class="toolbar">

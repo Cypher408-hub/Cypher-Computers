@@ -6,9 +6,7 @@
 [functions]
   node_bundler = "esbuild"
 
-[[headers]]
-  for = "/.netlify/functions/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, PUT, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, X-Admin-Password"
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
